@@ -1,0 +1,12 @@
+{
+  "preAntStr":"antStringToy.txt",
+  "postAntStr":"antStringToyM.txt",
+  "outAntStr":"antStringToyMP.txt",
+  "CDID":"multiTest",
+  "modelName":"pathway",
+  "modelVariations":["cellLineA","cellLineB"],
+  "hidenParams":["Stim"],
+  "bigNum":10000,
+  "path":"/Applications/copasi",
+  "joinInputs":false
+}

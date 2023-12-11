@@ -1,0 +1,61 @@
+model pathway()  
+  R1: A  -> Ap ; k1*A*(1+Stim)
+  R2: Ap -> A  ; k2*Ap*Bp
+  R3: B  -> Bp ; k3*B*Ap
+  R4: Bp -> B  ; k4*Bp
+  
+  A_wb  := A+Ap
+  Ap_wb := Ap
+  B_wb  := B+Bp
+  Bp_wb := Bp
+
+  Stim = 0 ;
+  
+  k1 = 0.1
+  k2 = 0.1
+  k3 = 0.1
+  k4 = 0.1
+  
+  A_T = 1 ;
+  B_T = 1 ;
+  mySubsA0 = A_T*k1 ;
+  mySubsA1 = k1 ;
+  mySubsA2 = k2 ;
+  A = A_T - Ap ;
+  Ap = mySubsA0/(Bp*mySubsA2 + mySubsA1) ;
+  B = B_T/2 ;
+  Bp = B_T/2 ;
+  A_wb_DVT0 = 10000 ;
+  A_wb_DVT1 = 10000 ;
+  A_wb_DVT2 = 10000 ;
+  A_wb_DVT3 = 10000 ;
+  A_wb_DVT4 = 10000 ;
+  A_wb_DVT5 = 10000 ;
+  Ap_wb_DVT0 = 10000 ;
+  Ap_wb_DVT1 = 10000 ;
+  Ap_wb_DVT2 = 10000 ;
+  Ap_wb_DVT3 = 10000 ;
+  Ap_wb_DVT4 = 10000 ;
+  Ap_wb_DVT5 = 10000 ;
+  B_wb_DVT0 = 10000 ;
+  B_wb_DVT1 = 10000 ;
+  B_wb_DVT2 = 10000 ;
+  B_wb_DVT3 = 10000 ;
+  B_wb_DVT4 = 10000 ;
+  B_wb_DVT5 = 10000 ;
+  Bp_wb_DVT0 = 10000 ;
+  Bp_wb_DVT1 = 10000 ;
+  Bp_wb_DVT2 = 10000 ;
+  Bp_wb_DVT3 = 10000 ;
+  Bp_wb_DVT4 = 10000 ;
+  Bp_wb_DVT5 = 10000 ;
+  RTX: ->PT ; PTSpeed
+  PT = 0
+  PTSpeed = 0
+  at (PTSpeed<0.5 && abs(Ap*B*k3 - Bp*k4)<0.0001*B_T && abs(A*k1 - Ap*Bp*k2)<0.0001*A_T), t0=false: PTSpeed=1, Stim=1, A_wb_DVT0=A_wb, Ap_wb_DVT0=Ap_wb, B_wb_DVT0=B_wb, Bp_wb_DVT0=Bp_wb
+  at (PT>=4): A_wb_DVT1=A_wb, Ap_wb_DVT1=Ap_wb, B_wb_DVT1=B_wb, Bp_wb_DVT1=Bp_wb
+  at (PT>=8): A_wb_DVT2=A_wb, Ap_wb_DVT2=Ap_wb, B_wb_DVT2=B_wb, Bp_wb_DVT2=Bp_wb
+  at (PT>=12): A_wb_DVT3=A_wb, Ap_wb_DVT3=Ap_wb, B_wb_DVT3=B_wb, Bp_wb_DVT3=Bp_wb
+  at (PT>=16): A_wb_DVT4=A_wb, Ap_wb_DVT4=Ap_wb, B_wb_DVT4=B_wb, Bp_wb_DVT4=Bp_wb
+  at (PT>=20): A_wb_DVT5=A_wb, Ap_wb_DVT5=Ap_wb, B_wb_DVT5=B_wb, Bp_wb_DVT5=Bp_wb
+end

@@ -1,0 +1,11 @@
+{
+  "preAntStr":"antString2.txt",
+  "postAntStr":"antString2M.txt",
+  "outAntStr":"antString2MP_MCF7.txt",
+  "CDID":"multiTest",
+  "modelName":"AktModelWithMMRateLaws",
+  "modelVariations":["MCF7"],
+  "hidenParams":["AA","Insulin"],
+  "bigNum":10000,
+  "path":"/Applications/copasi"
+}

@@ -1,0 +1,63 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 modelParaliser.py\
+\
+The purposes of this program is to take the model defined by the antimony string outputted by stringWangler.py and replicate it several times as sub models in a larger model with shared parameters. The new model is designed for a comparison with western blot type data where the relative quantity between time points and different experiments (different cell lines / preconditioning) is meaningful but where absolute quantity can not be ascertained. To that end the model of models normalises the output data associated with each variable type across both submodels and time points.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx4889\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 package dependancies: json, site, os, time, re, pycotools3, tellurium, pandas, logging, pickle, sys, random, subprocess, math, gc\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 Note pycotools3 is only supported in python 3.6 so modelParaliser.py must be run in python 3.6.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx4889\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 use example:\
+python modelParaliser.py json:config_mp.json\
+\
+The program requires an antimony input file (eg model_post.txt) created by stringWangler.py and the file antimony input file used by stringWangler.py to create that file (eg model_pre.txt). It also needs a configuration file (eg config_mp.json) all of which should be in the same directory as modelParaliser.py. The output model (model_out.txt) will also be created there.\
+\
+This program calls the software COPASI in the background and so COPASI must be installed on the system.\
+\
+The configuration file is in a json format. For example it might look like\
+\{\
+  "preAntStr":"model_pre.txt",\
+  "postAntStr":"model_post.txt",\
+  "outAntStr":"model_out.txt",\
+  "CDID\'94:\'94id\'94,\
+  "modelName":"pathway",\
+  "modelVariations\'94:\{\'93cellLineA\'94:\{\'93p1\'94:1,\'93p2\'94:0\},\
+                                \'94cellLineB\'94:\{\'93p1\'94:0,\'93p2\'94:1\}\},\
+  "hidenParams":["Stim"],\
+  "bigNum":10000,\
+  "path":"/Applications/copasi",\
+  "joinInputs":false,\
+  "setScale\'94:\{\}\
+\}\
+\
+preAntStr: The name of a file used by stringWangler.py to generate a model. Should be located in the same directory as modelParaliser.py\
+\
+postAntStr: The name of a model file created by stringWangler.py. Should be located in the same directory as modelParaliser.py\
+\
+outAntStr: The name of a model file  to be created by modelParaliser.py. Will be located in the same directory as modelParaliser.py\
+\
+CDID: specifies an id for the calculation. Will be used to name and create a directory where files for / made by Copasi will be temporarily stored.\
+\
+modelName: the name of the model to be used as a sub model (the name found after the keyword model in the antimony string).\
+\
+modelVariations: Either a dictionary of dictionaries or a list of strings. If a dictionary each entry specifies a sub model (experimental variation) named by the key. The associated inner dictionary is how the sub-model\'92s parameters should be set to represent the variation. Parameters addressed here are not linked (set equal between sub models) and are not renamed for use in parameter estimation. Alternatively a simple list of strings can be provided to produce a set of identical named sub-models.\
+\
+hidenParams: A list of parameters in the sub model that should not be exposed for parameter estimation / modification. Typically those parameters set by the models events and the variables involved in stimulation of the model.\
+\
+bigNum: The initial value dummy variables are set to. This should be several orders of magnitude higher than any plausible value in experimental data. The idea is that these initial values will not be changed if any one of the sub-models fails to stabilise during the allotted stabilisation period. This should make a choice of parameters that leads to a failures of stabilisation unattractive to any parameter estimation algorithm.\
+\
+path: Because the program calls copasi in the background it needs to add copasi to the path manually (most desktop installations of copasi do not have copasi\'92s command line tool in the path). If so you should provide the full path here. Because this will vary from system to system its posable to override this for convenience by passing \'93path:<insert path to copasi>\'94 as an additional argument passed to modelParaliser.py on the command line.\
+\
+joinInputs: either a bool or a list of strings. if true the additional parameters introduced by stringWangler.py (which are typically the total quantity of some conserved protein) are linked (set to be equal in each sub model). You might set this option if you were modelling the same cell line subject to different (brife) pretreatment protocols in different experiments. If you set this to false each additional parameter (total protein level) will have its own distinct value  in each sub model which can be parameter estimated separately. You might do this if modelling several different cell lines subjected to the same experimental conditions. If a list is provided only those new parameters (total protein levels) explicitly named in the list will be linked.\
+\
+setScale: A dictionary. The keys represent a measured observable in the original model (see varToTrack in stringWangler.py) that should not be normalised. Instead a scale factor is applied to this variable and the parameter representing this scaling is given by the associated dictionary value. In some cases you may be able to infer the difference between the modelled protein levels and the values in experimental data (perhaps as indicated by a previous parameter estimation). This facilitates so called \'91transfer\'92 parameterisations where you seek to perform a 2nd parameterisation on a 2nd data set where the outputs of the previous parameter estimation are wholly or partially reused.}

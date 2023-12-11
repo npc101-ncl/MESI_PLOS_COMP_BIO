@@ -1,0 +1,27 @@
+{
+    "dataKey":{"A":"A_wb",
+               "Ap":"Ap_wb",
+               "B":"B_wb",
+               "Bp":"Bp_wb"},
+    "dataRel":{"Ap_wb":"A_wb",
+               "Bp_wb":"B_wb"},
+    "totRel":{"A_wb":"A_T",
+              "B_wb":"B_T"},
+    "cmdDict":{"dataName":"toy",
+               "id":"toy",
+               "twoStage":"yes",
+               "antStr":"antStringToyM.txt",
+               "preAntStr":"antStringToy.txt",
+               "parallelAntStr":"antStringToyMP.txt",
+               "stabAlow":200.0,
+               "methP":{"method":"particle_swarm",
+                        "swarm_size":50,
+                        "iteration_limit":2000},
+               "methS":{"method":"hooke_jeeves"},
+               "data":"toy_data.xlsx",
+               "copys":100,
+               "timeMul":1.0,
+               "doNotEstimate":["Stim"]},
+    "cmdFlags":{}
+}
+

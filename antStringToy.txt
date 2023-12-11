@@ -1,0 +1,23 @@
+model pathway()  
+  R1: A  -> Ap ; k1*A*(1+Stim)
+  R2: Ap -> A  ; k2*Ap*Bp
+  R3: B  -> Bp ; k3*B*Ap
+  R4: Bp -> B  ; k4*Bp
+  
+  A_wb  := A+Ap
+  Ap_wb := Ap
+  B_wb  := B+Bp
+  Bp_wb := Bp
+
+  Stim = 0
+  
+  k1 = 0.1
+  k2 = 0.1
+  k3 = 0.1
+  k4 = 0.1
+  
+  A  = 1.0;
+  Ap = 1.0;
+  B  = 1.0;
+  Bp = 1.0;
+end

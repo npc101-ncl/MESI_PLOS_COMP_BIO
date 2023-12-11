@@ -1,0 +1,187 @@
+model pathway()  
+  R1: A  -> Ap ; k1*A*(1+Stim)
+  R2: Ap -> A  ; k2*Ap*Bp
+  R3: B  -> Bp ; k3*B*Ap
+  R4: Bp -> B  ; k4*Bp
+  
+  A_wb  := A+Ap
+  Ap_wb := Ap
+  B_wb  := B+Bp
+  Bp_wb := Bp
+
+  Stim = 0 ;
+  
+  k1 = 0.1
+  k2 = 0.1
+  k3 = 0.1
+  k4 = 0.1
+  
+  A_T = 1 ;
+  B_T = 1 ;
+  mySubsA0 = A_T*k1 ;
+  mySubsA1 = k1 ;
+  mySubsA2 = k2 ;
+  A = A_T - Ap ;
+  Ap = mySubsA0/(Bp*mySubsA2 + mySubsA1) ;
+  B = B_T/2 ;
+  Bp = B_T/2 ;
+  A_wb_DVT0 = 10000 ;
+  A_wb_DVT1 = 10000 ;
+  A_wb_DVT2 = 10000 ;
+  A_wb_DVT3 = 10000 ;
+  A_wb_DVT4 = 10000 ;
+  A_wb_DVT5 = 10000 ;
+  Ap_wb_DVT0 = 10000 ;
+  Ap_wb_DVT1 = 10000 ;
+  Ap_wb_DVT2 = 10000 ;
+  Ap_wb_DVT3 = 10000 ;
+  Ap_wb_DVT4 = 10000 ;
+  Ap_wb_DVT5 = 10000 ;
+  B_wb_DVT0 = 10000 ;
+  B_wb_DVT1 = 10000 ;
+  B_wb_DVT2 = 10000 ;
+  B_wb_DVT3 = 10000 ;
+  B_wb_DVT4 = 10000 ;
+  B_wb_DVT5 = 10000 ;
+  Bp_wb_DVT0 = 10000 ;
+  Bp_wb_DVT1 = 10000 ;
+  Bp_wb_DVT2 = 10000 ;
+  Bp_wb_DVT3 = 10000 ;
+  Bp_wb_DVT4 = 10000 ;
+  Bp_wb_DVT5 = 10000 ;
+  RTX: ->PT ; PTSpeed
+  PT = 0
+  PTSpeed = 0
+  at (PTSpeed<0.5 && abs(Ap*B*k3 - Bp*k4)<0.0001*B_T && abs(A*k1 - Ap*Bp*k2)<0.0001*A_T), t0=false: PTSpeed=1, Stim=1, A_wb_DVT0=A_wb, Ap_wb_DVT0=Ap_wb, B_wb_DVT0=B_wb, Bp_wb_DVT0=Bp_wb
+  at (PT>=4): A_wb_DVT1=A_wb, Ap_wb_DVT1=Ap_wb, B_wb_DVT1=B_wb, Bp_wb_DVT1=Bp_wb
+  at (PT>=8): A_wb_DVT2=A_wb, Ap_wb_DVT2=Ap_wb, B_wb_DVT2=B_wb, Bp_wb_DVT2=Bp_wb
+  at (PT>=12): A_wb_DVT3=A_wb, Ap_wb_DVT3=Ap_wb, B_wb_DVT3=B_wb, Bp_wb_DVT3=Bp_wb
+  at (PT>=16): A_wb_DVT4=A_wb, Ap_wb_DVT4=Ap_wb, B_wb_DVT4=B_wb, Bp_wb_DVT4=Bp_wb
+  at (PT>=20): A_wb_DVT5=A_wb, Ap_wb_DVT5=Ap_wb, B_wb_DVT5=B_wb, Bp_wb_DVT5=Bp_wb
+end
+
+model paralized_model()
+	cellLineA: pathway();
+	cellLineB: pathway();
+	cellLineA.k1 is k1;
+	cellLineB.k1 is k1;
+	cellLineA.k4 is k4;
+	cellLineB.k4 is k4;
+	cellLineA.k3 is k3;
+	cellLineB.k3 is k3;
+	cellLineA.k2 is k2;
+	cellLineB.k2 is k2;
+	k1=0.1;
+	k4=0.1;
+	k3=0.1;
+	k2=0.1;
+	
+	cellLineA.Bp_wb_DVT0 is Bp_wb_DVT0__cellLineA;
+	cellLineB.Bp_wb_DVT0 is Bp_wb_DVT0__cellLineB;
+	cellLineA.Bp_wb_DVT1 is Bp_wb_DVT1__cellLineA;
+	cellLineB.Bp_wb_DVT1 is Bp_wb_DVT1__cellLineB;
+	cellLineA.Bp_wb_DVT4 is Bp_wb_DVT4__cellLineA;
+	cellLineB.Bp_wb_DVT4 is Bp_wb_DVT4__cellLineB;
+	cellLineA.Bp_wb_DVT3 is Bp_wb_DVT3__cellLineA;
+	cellLineB.Bp_wb_DVT3 is Bp_wb_DVT3__cellLineB;
+	cellLineA.Bp_wb_DVT2 is Bp_wb_DVT2__cellLineA;
+	cellLineB.Bp_wb_DVT2 is Bp_wb_DVT2__cellLineB;
+	cellLineA.Bp_wb_DVT5 is Bp_wb_DVT5__cellLineA;
+	cellLineB.Bp_wb_DVT5 is Bp_wb_DVT5__cellLineB;
+	cellLineA.Ap_wb_DVT5 is Ap_wb_DVT5__cellLineA;
+	cellLineB.Ap_wb_DVT5 is Ap_wb_DVT5__cellLineB;
+	cellLineA.Ap_wb_DVT2 is Ap_wb_DVT2__cellLineA;
+	cellLineB.Ap_wb_DVT2 is Ap_wb_DVT2__cellLineB;
+	cellLineA.Ap_wb_DVT1 is Ap_wb_DVT1__cellLineA;
+	cellLineB.Ap_wb_DVT1 is Ap_wb_DVT1__cellLineB;
+	cellLineA.Ap_wb_DVT3 is Ap_wb_DVT3__cellLineA;
+	cellLineB.Ap_wb_DVT3 is Ap_wb_DVT3__cellLineB;
+	cellLineA.Ap_wb_DVT4 is Ap_wb_DVT4__cellLineA;
+	cellLineB.Ap_wb_DVT4 is Ap_wb_DVT4__cellLineB;
+	cellLineA.Ap_wb_DVT0 is Ap_wb_DVT0__cellLineA;
+	cellLineB.Ap_wb_DVT0 is Ap_wb_DVT0__cellLineB;
+	cellLineA.B_wb_DVT3 is B_wb_DVT3__cellLineA;
+	cellLineB.B_wb_DVT3 is B_wb_DVT3__cellLineB;
+	cellLineA.B_wb_DVT1 is B_wb_DVT1__cellLineA;
+	cellLineB.B_wb_DVT1 is B_wb_DVT1__cellLineB;
+	cellLineA.B_wb_DVT4 is B_wb_DVT4__cellLineA;
+	cellLineB.B_wb_DVT4 is B_wb_DVT4__cellLineB;
+	cellLineA.B_wb_DVT5 is B_wb_DVT5__cellLineA;
+	cellLineB.B_wb_DVT5 is B_wb_DVT5__cellLineB;
+	cellLineA.B_wb_DVT2 is B_wb_DVT2__cellLineA;
+	cellLineB.B_wb_DVT2 is B_wb_DVT2__cellLineB;
+	cellLineA.B_wb_DVT0 is B_wb_DVT0__cellLineA;
+	cellLineB.B_wb_DVT0 is B_wb_DVT0__cellLineB;
+	cellLineA.A_wb_DVT1 is A_wb_DVT1__cellLineA;
+	cellLineB.A_wb_DVT1 is A_wb_DVT1__cellLineB;
+	cellLineA.A_wb_DVT2 is A_wb_DVT2__cellLineA;
+	cellLineB.A_wb_DVT2 is A_wb_DVT2__cellLineB;
+	cellLineA.A_wb_DVT0 is A_wb_DVT0__cellLineA;
+	cellLineB.A_wb_DVT0 is A_wb_DVT0__cellLineB;
+	cellLineA.A_wb_DVT3 is A_wb_DVT3__cellLineA;
+	cellLineB.A_wb_DVT3 is A_wb_DVT3__cellLineB;
+	cellLineA.A_wb_DVT5 is A_wb_DVT5__cellLineA;
+	cellLineB.A_wb_DVT5 is A_wb_DVT5__cellLineB;
+	cellLineA.A_wb_DVT4 is A_wb_DVT4__cellLineA;
+	cellLineB.A_wb_DVT4 is A_wb_DVT4__cellLineB;
+	cellLineA.PT is PT_cellLineA;
+	cellLineB.PT is PT_cellLineB;
+	cellLineA.B_T is B_T_cellLineA;
+	cellLineB.B_T is B_T_cellLineB;
+	cellLineA.A_T is A_T_cellLineA;
+	cellLineB.A_T is A_T_cellLineB;
+	Bp_wb_mean = 10000 ;
+	Ap_wb_mean = 10000 ;
+	B_wb_mean = 10000 ;
+	A_wb_mean = 10000 ;
+	Bp_wb_DVT0_cellLineA = 10000 ;
+	Bp_wb_DVT0_cellLineB = 10000 ;
+	Bp_wb_DVT1_cellLineA = 10000 ;
+	Bp_wb_DVT1_cellLineB = 10000 ;
+	Bp_wb_DVT4_cellLineA = 10000 ;
+	Bp_wb_DVT4_cellLineB = 10000 ;
+	Bp_wb_DVT3_cellLineA = 10000 ;
+	Bp_wb_DVT3_cellLineB = 10000 ;
+	Bp_wb_DVT2_cellLineA = 10000 ;
+	Bp_wb_DVT2_cellLineB = 10000 ;
+	Bp_wb_DVT5_cellLineA = 10000 ;
+	Bp_wb_DVT5_cellLineB = 10000 ;
+	Ap_wb_DVT5_cellLineA = 10000 ;
+	Ap_wb_DVT5_cellLineB = 10000 ;
+	Ap_wb_DVT2_cellLineA = 10000 ;
+	Ap_wb_DVT2_cellLineB = 10000 ;
+	Ap_wb_DVT1_cellLineA = 10000 ;
+	Ap_wb_DVT1_cellLineB = 10000 ;
+	Ap_wb_DVT3_cellLineA = 10000 ;
+	Ap_wb_DVT3_cellLineB = 10000 ;
+	Ap_wb_DVT4_cellLineA = 10000 ;
+	Ap_wb_DVT4_cellLineB = 10000 ;
+	Ap_wb_DVT0_cellLineA = 10000 ;
+	Ap_wb_DVT0_cellLineB = 10000 ;
+	B_wb_DVT3_cellLineA = 10000 ;
+	B_wb_DVT3_cellLineB = 10000 ;
+	B_wb_DVT1_cellLineA = 10000 ;
+	B_wb_DVT1_cellLineB = 10000 ;
+	B_wb_DVT4_cellLineA = 10000 ;
+	B_wb_DVT4_cellLineB = 10000 ;
+	B_wb_DVT5_cellLineA = 10000 ;
+	B_wb_DVT5_cellLineB = 10000 ;
+	B_wb_DVT2_cellLineA = 10000 ;
+	B_wb_DVT2_cellLineB = 10000 ;
+	B_wb_DVT0_cellLineA = 10000 ;
+	B_wb_DVT0_cellLineB = 10000 ;
+	A_wb_DVT1_cellLineA = 10000 ;
+	A_wb_DVT1_cellLineB = 10000 ;
+	A_wb_DVT2_cellLineA = 10000 ;
+	A_wb_DVT2_cellLineB = 10000 ;
+	A_wb_DVT0_cellLineA = 10000 ;
+	A_wb_DVT0_cellLineB = 10000 ;
+	A_wb_DVT3_cellLineA = 10000 ;
+	A_wb_DVT3_cellLineB = 10000 ;
+	A_wb_DVT5_cellLineA = 10000 ;
+	A_wb_DVT5_cellLineB = 10000 ;
+	A_wb_DVT4_cellLineA = 10000 ;
+	A_wb_DVT4_cellLineB = 10000 ;
+	at ((PT_cellLineA>21.0) && (PT_cellLineB>21.0)): Bp_wb_mean=(Bp_wb_DVT0__cellLineA+Bp_wb_DVT0__cellLineB+Bp_wb_DVT1__cellLineA+Bp_wb_DVT1__cellLineB+Bp_wb_DVT4__cellLineA+Bp_wb_DVT4__cellLineB+Bp_wb_DVT3__cellLineA+Bp_wb_DVT3__cellLineB+Bp_wb_DVT2__cellLineA+Bp_wb_DVT2__cellLineB+Bp_wb_DVT5__cellLineA+Bp_wb_DVT5__cellLineB)/12, Ap_wb_mean=(Ap_wb_DVT5__cellLineA+Ap_wb_DVT5__cellLineB+Ap_wb_DVT2__cellLineA+Ap_wb_DVT2__cellLineB+Ap_wb_DVT1__cellLineA+Ap_wb_DVT1__cellLineB+Ap_wb_DVT3__cellLineA+Ap_wb_DVT3__cellLineB+Ap_wb_DVT4__cellLineA+Ap_wb_DVT4__cellLineB+Ap_wb_DVT0__cellLineA+Ap_wb_DVT0__cellLineB)/12, B_wb_mean=(B_wb_DVT3__cellLineA+B_wb_DVT3__cellLineB+B_wb_DVT1__cellLineA+B_wb_DVT1__cellLineB+B_wb_DVT4__cellLineA+B_wb_DVT4__cellLineB+B_wb_DVT5__cellLineA+B_wb_DVT5__cellLineB+B_wb_DVT2__cellLineA+B_wb_DVT2__cellLineB+B_wb_DVT0__cellLineA+B_wb_DVT0__cellLineB)/12, A_wb_mean=(A_wb_DVT1__cellLineA+A_wb_DVT1__cellLineB+A_wb_DVT2__cellLineA+A_wb_DVT2__cellLineB+A_wb_DVT0__cellLineA+A_wb_DVT0__cellLineB+A_wb_DVT3__cellLineA+A_wb_DVT3__cellLineB+A_wb_DVT5__cellLineA+A_wb_DVT5__cellLineB+A_wb_DVT4__cellLineA+A_wb_DVT4__cellLineB)/12
+	at ((PT_cellLineA>22.0) && (PT_cellLineB>22.0)): Bp_wb_DVT0_cellLineA=Bp_wb_DVT0__cellLineA/Bp_wb_mean, Bp_wb_DVT0_cellLineB=Bp_wb_DVT0__cellLineB/Bp_wb_mean, Bp_wb_DVT1_cellLineA=Bp_wb_DVT1__cellLineA/Bp_wb_mean, Bp_wb_DVT1_cellLineB=Bp_wb_DVT1__cellLineB/Bp_wb_mean, Bp_wb_DVT4_cellLineA=Bp_wb_DVT4__cellLineA/Bp_wb_mean, Bp_wb_DVT4_cellLineB=Bp_wb_DVT4__cellLineB/Bp_wb_mean, Bp_wb_DVT3_cellLineA=Bp_wb_DVT3__cellLineA/Bp_wb_mean, Bp_wb_DVT3_cellLineB=Bp_wb_DVT3__cellLineB/Bp_wb_mean, Bp_wb_DVT2_cellLineA=Bp_wb_DVT2__cellLineA/Bp_wb_mean, Bp_wb_DVT2_cellLineB=Bp_wb_DVT2__cellLineB/Bp_wb_mean, Bp_wb_DVT5_cellLineA=Bp_wb_DVT5__cellLineA/Bp_wb_mean, Bp_wb_DVT5_cellLineB=Bp_wb_DVT5__cellLineB/Bp_wb_mean, Ap_wb_DVT5_cellLineA=Ap_wb_DVT5__cellLineA/Ap_wb_mean, Ap_wb_DVT5_cellLineB=Ap_wb_DVT5__cellLineB/Ap_wb_mean, Ap_wb_DVT2_cellLineA=Ap_wb_DVT2__cellLineA/Ap_wb_mean, Ap_wb_DVT2_cellLineB=Ap_wb_DVT2__cellLineB/Ap_wb_mean, Ap_wb_DVT1_cellLineA=Ap_wb_DVT1__cellLineA/Ap_wb_mean, Ap_wb_DVT1_cellLineB=Ap_wb_DVT1__cellLineB/Ap_wb_mean, Ap_wb_DVT3_cellLineA=Ap_wb_DVT3__cellLineA/Ap_wb_mean, Ap_wb_DVT3_cellLineB=Ap_wb_DVT3__cellLineB/Ap_wb_mean, Ap_wb_DVT4_cellLineA=Ap_wb_DVT4__cellLineA/Ap_wb_mean, Ap_wb_DVT4_cellLineB=Ap_wb_DVT4__cellLineB/Ap_wb_mean, Ap_wb_DVT0_cellLineA=Ap_wb_DVT0__cellLineA/Ap_wb_mean, Ap_wb_DVT0_cellLineB=Ap_wb_DVT0__cellLineB/Ap_wb_mean, B_wb_DVT3_cellLineA=B_wb_DVT3__cellLineA/B_wb_mean, B_wb_DVT3_cellLineB=B_wb_DVT3__cellLineB/B_wb_mean, B_wb_DVT1_cellLineA=B_wb_DVT1__cellLineA/B_wb_mean, B_wb_DVT1_cellLineB=B_wb_DVT1__cellLineB/B_wb_mean, B_wb_DVT4_cellLineA=B_wb_DVT4__cellLineA/B_wb_mean, B_wb_DVT4_cellLineB=B_wb_DVT4__cellLineB/B_wb_mean, B_wb_DVT5_cellLineA=B_wb_DVT5__cellLineA/B_wb_mean, B_wb_DVT5_cellLineB=B_wb_DVT5__cellLineB/B_wb_mean, B_wb_DVT2_cellLineA=B_wb_DVT2__cellLineA/B_wb_mean, B_wb_DVT2_cellLineB=B_wb_DVT2__cellLineB/B_wb_mean, B_wb_DVT0_cellLineA=B_wb_DVT0__cellLineA/B_wb_mean, B_wb_DVT0_cellLineB=B_wb_DVT0__cellLineB/B_wb_mean, A_wb_DVT1_cellLineA=A_wb_DVT1__cellLineA/A_wb_mean, A_wb_DVT1_cellLineB=A_wb_DVT1__cellLineB/A_wb_mean, A_wb_DVT2_cellLineA=A_wb_DVT2__cellLineA/A_wb_mean, A_wb_DVT2_cellLineB=A_wb_DVT2__cellLineB/A_wb_mean, A_wb_DVT0_cellLineA=A_wb_DVT0__cellLineA/A_wb_mean, A_wb_DVT0_cellLineB=A_wb_DVT0__cellLineB/A_wb_mean, A_wb_DVT3_cellLineA=A_wb_DVT3__cellLineA/A_wb_mean, A_wb_DVT3_cellLineB=A_wb_DVT3__cellLineB/A_wb_mean, A_wb_DVT5_cellLineA=A_wb_DVT5__cellLineA/A_wb_mean, A_wb_DVT5_cellLineB=A_wb_DVT5__cellLineB/A_wb_mean, A_wb_DVT4_cellLineA=A_wb_DVT4__cellLineA/A_wb_mean, A_wb_DVT4_cellLineB=A_wb_DVT4__cellLineB/A_wb_mean
+end

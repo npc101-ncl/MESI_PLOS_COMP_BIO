@@ -1,0 +1,289 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red102\green177\blue50;}
+{\*\expandedcolortbl;;\cssrgb\c46532\c73327\c25364;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc4\levelnfcn4\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{lower-alpha\})}{\leveltext\leveltemplateid1\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc4\levelnfcn4\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{lower-alpha\})}{\leveltext\leveltemplateid101\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\})}{\leveltext\leveltemplateid201\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid3}
+{\list\listtemplateid4\listhybrid{\listlevel\levelnfc4\levelnfcn4\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{lower-alpha\})}{\leveltext\leveltemplateid301\'02\'00);}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid4}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 GPParamiteriser.py\
+\
+This program facilitates the parameter estimation of a systems biology model (in the form of an antimony string). It is valid for an experimental set up where:\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls1\ilvl0\cf0 {\listtext	a)	}cells have been left to stabilise in some preconditioning medium.\
+{\listtext	b)	}then swapped into a new medium with an additional stimulating agents.\
+{\listtext	c)	}Then sampled and lysed at regular time periods\
+{\listtext	d)	}And the cell lysates are measured for protein content (including measurements sensitive to post transcriptional modification) in a way that does not offer absolute quantification but only relative quantification between time points / experiments.\
+{\listtext	e)	}where the cells may or may not be of the same type between experiments.\
+{\listtext	f)	}where the preconditioning steps may or may not differ between experiments.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 It does this by making use of the models created by stringWangler.py and modelParaliser.py to effect a parameter estimation where.\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls2\ilvl0\cf0 {\listtext	a)	}simulated stimulation does not occur until the model has achieved a stable state.\
+{\listtext	b)	}comparison with experimental data takes place relative to the time point of stimulation.\
+{\listtext	c)	}both experimental and simulated data is normalised (so that it has a mean of 1) across time points and experimental variations prior to comparison.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+The software also has 2 other ancillary functions.\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls3\ilvl0\cf0 {\listtext	1)	}It can generate profile likelihoods (see doi:10.1093/bioinformatics/bty409) using the same parameter estimation methodology. These are useful for validating the parameter estimation and also deciding which parameters can be considered reliably estimated and thus reused as assumptions in future estimations reducing the computational burden and allowing a parameter set to be incrementally improved with repeated estimation.\
+{\listtext	2)	}It can \'91transfer\'92 over a parameter set generated with one model and set of data to another related but different model sharing many of the same parameters which is to be parameterised using a different set of data. The application here is that you would seek to leverage previous work to make predictions about some new experiment, perhaps with a new cell line or preconditioning step. Because the results of the previous parameter estimation tacitly imply scaling factors relating the relative data to an absolute scale this transfer code supports the application of such factors on a parameter set by parameter set basis.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+Package dependancies:\
+pandas, json, sys, os, pickle, time, re, site, pycotools3, tellurium, logging, random, subprocess, math, gc\
+\
+Other dependancies:\
+the COPASI application (https://copasi.org) and for anything other than test use the slurm scheduling system (https://slurm.schedmd.com).\
+\
+Note pycotools3 is only supported in python 3.6 so GPParamiteriser.py must be run in python 3.6.\
+For use on a slurm system the CopasiSE tool should be accessible from your path.\
+\
+use example (an example shell script to pass to slurm):\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 #!/bin/bash\
+#\
+#SBATCH --mail-type=ALL\
+#SBATCH --mail-user=your.name@your.university.ac.uk\
+#SBATCH --mem-per-cpu=5G\
+#\
+\
+python GPParamiteriser.py slurm configFile:config_gpp.json\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+use example (calling the example shell script):\
+sbatch GPP_example.sh\
+\
+This GPParamiteriser.py supports a lot of additional command line arguments not shown (see bellow).\
+\
+This program requires the antimony files generated by modelParaliser.py and stringWangler.py as well as the antimony file used in generating those. It requires 3 csv files dataKey, dataRel and totRel (see Structure of the Config file). Or these csv files may be omitted if the same data is included in the optional config file (a json).\
+\
+The program also requires an xlsx file containing experimental data. This file should contain a block of the following format:\
+\pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
+\ls4\ilvl0\cf0 {\listtext	a)	}measured observable names as column headers (eg \'93protein_A_pT123\'94)\
+{\listtext	b)	}experimental variations and time indexes as row indexes (eg \'93cell-line-A 5.4 ignored-text\'94)\
+{\listtext	c)	}the term "average per experiment" in the top left corner of the block.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 Anything outside of this block should be ignored.\
+\
+Example config file (json)\
+\{\
+    "dataKey":\{"A":"A_wb",\
+                      "Ap":"Ap_wb",\
+                      "B":"B_wb",\
+                      "Bp":"Bp_wb"\},\
+    "dataRel":\{"Ap_wb":"A_wb",\
+                     "Bp_wb":"B_wb"\},\
+    "totRel":\{"A_wb":"A_T",\
+                  "B_wb":"B_T"\},\
+    "cmdDict":\{"dataName":"toy",\
+                      "id":"toy",\
+                      "twoStage":"yes",\
+                      "antStr":"antStringToyM.txt",\
+                      "preAntStr":"antStringToy.txt",\
+                      "parallelAntStr":"antStringToyMP.txt",\
+                      "stabAlow":200.0,\
+                      "methP":\{"method":"particle_swarm",\
+                                     "swarm_size":50,\
+                                     "iteration_limit":2000\},\
+                      "methS":\{"method":"hooke_jeeves"\},\
+                      "data":"toy_data.xlsx",\
+                      "copys":100,\
+                      "timeMul":1.0,\
+                      "doNotEstimate":["Stim"]\},\
+    "cmdFlags":\{\}\
+\}\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\fs36 \cf0 Structure of the Config file:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\fs24 \cf0 The config json is an optional file that was introduced late in the development of GPParamiteriser to help reduce the number of external files needed and reduce the long list of command line arguments that needed to be passed to the code as it grew more complex. It is a json dictionary that contains the following optional entries.\
+\
+dataKey: A dictionary that matches the naming in the experimental data file to the naming in the model. The keys take the names of different protein measurements (eg western blots) and the associated value is the naming convention use in the model given in preAntStr (see section on command line arguments / cmdDict). Usually the name of an assignment in the model. If omitted a csv file providing the same data must be provided (see dataKey in the command line arguments / cmdDict section).\
+\
+dataRel: A dictionary that describes the relationship between different protein measurements in experimental data. Specifically which measurements are components of other measurements. The keys take the names of component measurements and the associated value the names of the measurement of which they are a component (as named in the model data). For example if you had a protein measured by western blot, P_wb, and two western blot measurements for 2 particular phosphorylation sites of this protein (PpA_wb & PpB_wb) then the entries in this dictionary would be \{\'93PpA_wb\'94:\'94P_wb\'94,\'93PpB_wb\'94:\'94P_wb\'94\}. This is used as a sanity check when estimating the correct scales to apply to experimental data. This estimation process is part of depreciated behaviour that only occurs when parallelAntStr is not set. (see parallelAntStr in the command line arguments / cmdDict section). If omitted a csv file providing the same data must be provided (see dataRel in the command line arguments / cmdDict section).\
+\
+totRel: A dictionary that describes the relationship between those measurements in experimental data (eg western blots) that represent a total amount of protein (eg the total including both phosphorylated and un phosphorylated) and the parameter in the model (associated with antStr, see command line arguments / cmdDict section) that represents that total amount of protein. So for example if P_wb is a western blot measurement for a protein that doesn\'92t care about its state and P_T is the parameter for the abundance of the protein then the entry would be \{\'93P_wb\'94:\'94P_T\'94\}. The experimental data is used to set these total protein levels instead of them being parameter estimated. If omitted a csv file providing the same data must be provided (see totRel in the command line arguments / cmdDict section).\
+\
+cmdDict: Instead of passing key argument pairs (using the notation key:value) in the command line it\'92s posable to pass the same arguments here in a dictionary. There is a section entirely devoted to this and the command line arguments. If provided GPParamiteriser will attempt to intelligently merge the options passed in the config file and via command line giving precedence to the options in the config file.\
+\
+cmdFlags: It is also possible to pass single keywords (flags) on the command line. For completeness this can also be overridden in a way similar to cmdDict. If the cmdFlags sub dictionary exists it\'92s entries must be of the form \{\'93key1\'94:true,\'94key2\'94:false\} etc. If the keyword / flag is set true in the config file then it will always be treated as appearing regardless of the command line and likewise if its set false it will never be treated as appearing regardless of the command line. There are only 2 keywords / flags. \'91slurm\'92 that indicates that the calculation should be optimised for parallel execution on a slurm system. Or the keyword / flag \'91averageTotals\'92 which is depreciated and only has any event if parallelAntStr (see command line arguments / cmdDict section) is omitted. In the absence of the slurm keyword \'93copys\'94 (see command line arguments / cmdDict section) is forced to 2 because GPParamiteriser is not intended to run on a single core except for testing.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\fs36 \cf0 Command line arguments and the cmdDict entry in the config file:
+\fs24 \
+The command line supports a very large number of arguments for GPParamiteriser. It became expedient to give the option of putting them in the json configuration file instead. If a command line argument also appears in the configuration file the configuration file will take precedent. In the command line key/value pairs to be entered into cmdDict are notated key:value and the value type inferred from the keys default value (see appendix A). Lists have the structure key:value1:value2:value3 and dictionaries have the structure outerKey:key1:value1,key2:value2,key3:value3 etc.\
+\
+preAntStr: the name of the antimony string file (in the same directory as GPParamiteriser.py) for the core model you want to parameterise subject to the condition it starts in a stable state (relative to t=0 in the experimental data) across multiple experimental variations. Used to infer what parameters should be estimated and what values captured in time courses.\
+\
+antStr: the name of the antimony string file (in the same directory as GPParamiteriser.py) created by stringWangler.py from the string given in preAntStr. GPParamiteriser uses this to infer what names of dummy parameters in the model are.\
+\
+parallelAntStr: the name of the antimony string file (in the same directory as GPParamiteriser.py) created by modelParaliser.py rom the strings given in preAntStr and antStr. This is the model actually used for parameterisation. There used to be an option of leaving this blank (a \'93\'94 string) and running a parameterisation only on the antStr model but that behaviour is now depreciated.\
+\
+addICforTC: (list of strings) When a preconditioning variation has been written into the model in parallelAntStr the parameters varied between models must be listed here to tell the code to treat them as initial conditions instead of parameters for the purpose of generating time courses.\
+\
+doNotEstimate: (list of strings) The code will generally assume every parameter in preAntStr should be estimated. You must provide a list of exceptions. This generally includes any parameters modified to provide \'93stimulation\'94 to the model at t=0 and any parameters appearing in addICforTC.\
+\
+copasiPath: the path to the copasi binary directory on the machine. ignored if the slurm flag is set (in that case you are expected to have copasi in the path by default or do it in the slurm script)\
+\
+id: a string used to create a folder where copasi related files are stored temporarily during the calculation. If you are going to run two or more instances of GPParamiteriser at the same time they should have difrent ids.\
+\
+dataName:  The name of a folder within the \'91data\'92 folder in which to store and retrieve parameterisation outputs.\
+\
+data: the name of the xlsx file (in the same directory as GPParamiteriser.py) from which calibration (experimental) data is extracted. The program expects a block of numbers with "average per experiment" in the top left corner. Column headers giving the names of the type western blot. (proteinA, phospho_proteinA, etc) and an index for each result on the western blot gel. the index names should be composed of an experimental conditions label (eg cellline-A) and a time (eg 0) separated by a space. Anything else after this in the index name is ignored. Anything outside of the block is ignored. Hyphens in experimental conditions labels are automatically removed (eg, celllineA) and this modified label should match the naming used in the antimony strings.\
+\
+timeMul: by default the times in calibration (experimental) data are assumed to be given in minuets and are multiplied by 60 to give seconds. This scaling can be overridden here.\
+\
+configFile: The name of config file (in the same directory as GPParamiteriser.py). (ignored unless in command line arguments) As previously mentioned the settings passed as command line arguments as well as the relational data given in dataKey, dataRel and totRel can be passed instead in a json. Of course putting the path to the config file in the config file does nothing this entry is for completeness and clarity.\
+\
+dataKey: The name of a header-less 2 column (key,value) csv file (in the same directory as GPParamiteriser.py) that describes the data to be used in the root level dataKey entry of the config file. Obviously this is ignored if that entry already exists.\
+\
+dataRel: The name of a header-less 2 column (key,value) csv file (in the same directory as GPParamiteriser.py) that describes the data to be used in the root level dataKey entry of the config file. Obviously this is ignored if that entry already exists.\
+\
+totRel: The name of a header-less 2 column (key,value) csv file (in the same directory as GPParamiteriser.py) that describes the data to be used in the root level dataKey entry of the config file. Obviously this is ignored if that entry already exists.\
+\
+cmdRec: A copy of the settings in cmdDict will be saved as a pickle file and you can override the default name here. the file will save in the data/<dataName> folder.\
+\
+elemOut: A dictionary describing the components (species, assignments, parameter names etc) of the 3 models referred to in preAntStr, antStr and parallelAntStr will be saved as a pickle file and you can override the default name here. the file will save in the data/<dataName> folder.\
+\
+paramOut: a string, the file name (.csv) of the output of a parameter estimation. In the event of a parameter estimation or parameter transfer calculation this is where the estimation will be saved. A file with this name in the data/<dataName> folder. In the event that you run a profile likelihood analysis this is the parameter estimation file used as an input.\
+\
+paramKey: a string. In a parameter transfer its necessary to indicate which input parameter set (see paramTrans) an output parameter set is based on. An additional column is added to the parameter estimation output (see paramOut) and it\'92s posable to override the default naming here.\
+\
+DBOutputs: String, name of CSV file in the data/<dataName> folder. Outputted time courses based on the best scoring outputs of the parameter estimation / transfer. These time courses are based on simulations with the model in parallelAntStr and is primarily used for debugging and other checks.\
+\
+TCOutputs: String, name of CSV file in the data/<dataName> folder. Outputted time courses based on the best scoring outputs of the parameter estimation / transfer. These time courses are based on simulations with the model in antStr. Because this model only describes one cell line / preconditioning protocol it is run several time per parameter set with different initial conditions per experiment (see addICforTC)\
+\
+TCIndex: string. In the time course output files (see DBOutputs and TCOutputs) it is necessary to have a column to indicate which parameter set a given time course belongs to. The default name for that column can be overridden here.\
+\
+TCKeyVar: string. In the time course output file (see TCOutputs) it is necessary to have a column to indicate which cell line / preconditioning protocol set a given time course belongs to. The default name for that column can be overridden here.\
+\
+TCToComp: a positive integer. The number of time courses to be computed from the best scoring parameter sets.\
+\
+maxRunTime: defines a time (in seconds) after which the program should end the parameter estimation prematurely if not complete so as to return results before the slurm manager timeouts the program.\
+\
+secondRunTime: where twoStage is set \'93yes\'94 this time (in seconds) is the time that will be set aside for the second phase of the parameter estimation and used to calculate when and if the first stage should end prematurely.\
+\
+copys: In parameter estimations this is the number of separate results that should be returned. The initial parameters are set randomly in this case so a large number gives a good number of sampling \'91seeds\'92 for the calculation. For transfer calculations this is the number of copies per inputed parameter set. For the profile likelihood this is the number of copies per constraint (eg one constraint is parameter_A constrained to be 1.5 times its original estimate.) Also known as the depth.\
+\
+pTimeVar: A string. Each sub model (eg antStr) has its own pseudo time variable. If it was necessary to change it in the model to avoid name clashes you can override the default name GPParamiteriser looks for here.\
+\
+mergeTotals: a true / false bool: if true the program expects the totals as given in totRel to relate to merged totals in parallelAntStr as opposed to cell line specific ones. (see joinInputs in \'93readme modelParaliser.rtf\'94) This is used to corectly filter out what should be set from data instead of estimated.\
+\
+twoStage: String with \'93yes\'94/\'93no\'94 value. Whether the parameter estimation should be 2 staged. The two staged so called \'91global chaser\'92 method involves using a parameter estimation methods that\'92s good at thoroughly exploring high dimensional parameter spaces like partial swam as a first stage. The results of this first stage are then handed to a second parameter estimation as its starting points (as opposed to the usual random selection) And this second parameter estimation method (often hooke jeeves) is chosen to be good at converging to a local minimum quickly.\
+\
+methP: a dictionary defining the parameter estimation used in the first or only stage of the parameter estimation (see twoStage). The key / value pairs are fed into the pycotools context.set function and are primarily used to define the copasi parameter estimation method type and settings (see the copasi documentation). The general rule of thumb going from copasi to pycotools naming is that spaces become underscores. The key \'91method\'92 is used to define the named method with a string value.\
+\
+methS: a dictionary defining the parameter estimation used in the second of the parameter estimations if it exists (see twoStage). The key / value pairs are fed into the pycotools context.set function and are primarily used to define the copasi parameter estimation method type and settings (see the copasi documentation). The general rule of thumb going from copasi to pycotools naming is that spaces become underscores. The key \'91method\'92 is used to define the named method with a string value\
+\
+parameterLB: positive float: A number representing the minimum allowable output value for estimated parameters .\
+\
+parameterUB positive float: A number representing the maximum allowable output value for estimated parameters.\
+\
+stabAlow: a positive float. GPParamiteriser calculates the amount of time the model should run based on calibration data time points but it requires additional time to stabilise prior to the simulation proper (the part that corresponds to experimental data). This number overrides the default additional time given to the stimulation to stabilise. \
+\
+paramRecycle: a string. if not \'93\'94 the file name of a parameter estimation output (in the data/<dataName> folder) to use as a reference in a parameter estimation so that some parameters (including initial conditions / protein totals) can be assumed from an old datasets instead of recalculated.\
+\
+recycleCase: an integer that indicates the parameter set in the reference parameter estimation output (see paramRecycle) to be used for recycling estimated values.\
+\
+recycleVars: a list of strings. the parameters that should be recycled from an old parameter estimation output (see paramRecycle).\
+\
+paramTrans: a string. If not \'93\'94 (and PLRange does not trigger a profile likelihood calculation) then GPParamiteriser will attempt to perform a transfer. A parameter estimation where there shared parameters from a previous parameter estimation on a previous model are reused on a parameter estimation on a new model (with new data). This string names the file (in the data/<dataName> folder) used as a source for parameters. If there are no remaining parameters to be estimated after the parameters in the file are reused then only simulations take place.\
+\
+useForTrans: a list of integers or integer. The parameter sets (or in case of integer the number of parameter sets) to reuse in the file specified in paramTrans.\
+\
+scaleIn: a string. if not \'93\'94 should give the name of a csv file in the data/<dataName> folder used in transfer (see paramTrans) to indicate a set of scales to apply to model outputs to bring them in line with data. Because the parameter estimation method ignores absolute scale the time courses outputted by the parameter estimation will match the \'92shape\'92 but not the value of the experimental data. Scaling values can be inferred form time courses for each parameter set that would bring the model outputs inline with data. Assuming data used in a transfer parameter estimation is acquired in a way that preserves relative levels to the data used for the original parameter estimation it\'92s legitimate and necessary to apply these scales to the model outputs as part of the transfer parameter estimation instead of normalising the model outputs and experimental data. This requires a custom model intended for transfer (see setScale in readme modelParaliser.rtf).\
+\
+scaleModelKey: A dictionary used to relate the values in the scale csv file (see scaleIn) to the scale parameters in the model (see setScale in readme modelParaliser.rtf). Dictionary keys relate the names in the scale csv file and values the parameter names in the model.\
+\
+PLRange: a list of floats. if the list does not have length 0 then a profile likelihood calculation takes place. The list defines the the range of multipliers that should be applied to the parameter held constant in the likelihood. For example the list [0.1,1,10] applied to a model with 2 parameters kA and kB would give rise to 6 separate parameter estimations. 3 where kB is estimated and kA is set to be either 0.1, 1 or 10 times the original estimate of kA and a second 3 where kA is estimated and kB is set to be either 0.1, 1 or 10 times the original estimate of  kB.\
+\
+PLCase: an integer. Defines the parameter set in the input parameter estimation (see paramOut) used as a reference in calculating the profile likelihood (see PLRange).\
+\
+profileOut: a string. the name of the file (to be saved in the data/<dataName> folder) that holds the profile likelihood output (see PLRange). The output is effectively a combined set of parameter estimations with the added two columns \'93adjKey\'94 and \'93adjVal\'94. The adjKey column indicates which parameter has been excluded from the estimation and adjVal indicates what the value of the indicated parameter was relative to the same parameter in the reference parameter set (see PLCase).\
+\
+jobLimit: (integer) when performing profile likelihood calculations the number of jobs submitted to slurm can quickly overwhelm a users queue length privileges.  This number defines a limit that will cause the program to wait on submitting more jobs when it detects more jobs than this in the users queue.\
+\
+userName: (string) You must provide your slurm username for the restriction in jobLimit to work correctly.\
+\
+scaleOut: string. used in depreciated behaviour (see parallelAntStr) to indicate the file name (csv file) used to save (in the data/<dataName> folder) the estimated scales applied to the experimental data before parameter estimation. In this behaviour model and data outputs are not normalised but experimental data is scaled based on estimated scaling factors. This process of estimation may refer to the out put of previous parameter estimations under the assumption that a scale that would aline the data more closely to the previous results of the parameter estimation is generally better.\
+\
+scaleMax: float. used in depreciated behaviour (see parallelAntStr) to set a maximum for the estimated scale value applied to experimental data.\
+\
+scaleMin: float. used in depreciated behaviour (see parallelAntStr) to set a minimum for the estimated scale value applied to experimental data.\
+\
+scaleRefs: string. used in depreciated behaviour (see parallelAntStr) to indicate the file (csv file in the data/<dataName> folder) containing time courses from a previous parameter estimation to be used in estimating a new set of scale factors to apply to experimental data.\
+\
+SRIndexVal: integer, used in depreciated behaviour (see parallelAntStr). The index of the parameter set who\'92s associated time courses should be used in the estimation of new scale factors (see scaleRefs).\
+\
+sdForScale: float, used in depreciated behaviour (see parallelAntStr). In the absence reference time courses (see scaleRefs) the scale factors applied to experimental data are estimated based on the standard deviation of modified (phosphorylated protein). The assumption is the gap between the post scaled total protein and phosphoprotein levels should be relative to the standard deviation in the phosphoprotein value. this float defines the number of stand deviations that gap should be.\
+\
+ratioWeight: float, can be ignored or omitted. Pertains to functionality the code no longer has. This functionality could be reintroduced with minimal code editing. At one point model output and experimental data was normalised on a cell line by cell line basis not over all cell lines (or pre condition protocols). There were additional dummy values used to measure the relative magnitude between cell lines and this float was used to weight their influence on parameter estimation.\
+\
+
+\fs36 Appendix A: command line defaults
+\fs24 \
+\{\
+               "copys":200,\
+               "preAntStr":"antString2.txt",\
+               "antStr":"antString2M.txt",\
+               "parallelAntStr":"",\
+               "id":"test",\
+               "data":"zr75_data.xlsx",\
+               "dataKey":"DTCon.csv",\
+               "dataRel":"dataRelations.csv",\
+               "totRel":"totalsRelations.csv",\
+               "scaleRefs":"PEScaleRefs.csv",\
+               "paramOut":"parameters.csv",\
+               "paramRecycle":"",\
+               "recycleCase":0,\
+               "recycleVars\'94:[],\
+               "scaleOut":"scales.csv",\
+               "scaleIn":"",\
+               "TCIndex":"index",\
+               "SRIndexVal":0,\
+               "TCKeyVar":"dataKey",\
+               "dataName":"testGPP",\
+               "TCOutputs":"PETimeCourses.csv",\
+               "DBOutputs":"DBTimeCourses.csv",\
+               "TCToComp":10,\
+               "pTimeVar":"PT",\
+               "sdForScale":2,\
+               "scaleMin":0.1,\
+               "scaleMax":1000,\
+               "stabAlow":120.0,\
+               "parameterUB":100.0,\
+               "parameterLB":0.01,\
+               "methP\'94:\{\
+                              \'93method\'94:\'94particle_swarm\'94,\
+                              \'93swarm_size\'94:5,\
+                              "iteration_limit\'94:10\
+                             \},\
+               "methS\'94:\{\
+                              \'93method\'94:\'94hooke_jeeves\'94\
+                             \},\
+               "maxRunTime":169200,\
+               "secondRunTime":18000,\
+               "twoStage":"no",\
+               "ratioWeight":1,\
+               "mergeTotals\'94:false,\
+               "doNotEstimate\'94:[\'93Insulin\'94,\'94AA\'94],\
+               "addICforTC\'94:[],\
+               "jobLimit":1000,\
+               "PLCase":0,\
+               "profileOut":"profile.csv",\
+               "paramTrans":"",\
+               "paramKey":"paramSet",\
+               "useForTrans":10,\
+               "cmdRec":"comandRecord.p",\
+               "elemOut":"elements.p",\
+               "timeMul":60.0,\
+               "copasiPath":"/Applications/copasi"\
+\}}

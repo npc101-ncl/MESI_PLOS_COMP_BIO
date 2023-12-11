@@ -1,0 +1,97 @@
+
+
+
+model AktModelWithMMRateLaws()
+    compartment             Cell = 1;
+    var IRS1                in Cell;
+    var IRS1pS636_639       in Cell;
+    var Akt                 in Cell;
+    var AktpT308            in Cell;
+    var TSC2                in Cell;
+    var TSC2pT1462          in Cell;
+    var PRAS40              in Cell;
+    var PRAS40pT246         in Cell;
+    var S6K                 in Cell;
+    var S6KpT389            in Cell;
+    var FourEBP1            in Cell;
+    var FourEBP1pT37_46     in Cell;  
+
+    const Insulin          in Cell;
+    const AA               in Cell;
+    
+    IRS1_sum       := IRS1+IRS1pS636_639
+    Akt_sum        := Akt+AktpT308
+    TSC2_sum       := TSC2+TSC2pT1462
+    PRAS40_sum     := PRAS40+PRAS40pT246
+    FourEBP1_sum   := FourEBP1+FourEBP1pT37_46
+    S6K_sum        := S6K+S6KpT389
+    
+    Akt_wb             := Akt_sum
+    AktpT308_wb        := AktpT308
+    PRAS40_wb          := PRAS40_sum
+    PRAS40pT246_wb     := PRAS40pT246
+    S6K_wb             := S6K_sum
+    S6KpT389_wb        := S6KpT389
+    TSC2_wb            := TSC2_sum
+    TSC2pT1462_wb      := TSC2pT1462
+    IRS1_wb            := IRS1_sum
+    IRS1pS636_639_wb   := IRS1pS636_639
+    FourEBP1_wb        := FourEBP1_sum
+    FourEBP1pT37_46_wb := FourEBP1pT37_46
+
+    // kinetic parameters
+    kIRS1Inact              = 0.1;
+    kIRS1Phos               = 0.1;
+    kAktPhos_kcat           = 0.1;
+    kAktDephos              = 0.1;    
+    kTSC2Phos               = 0.1;    
+    kTSC2Dephos             = 0.1;
+    kPras40Phos             = 0.1;
+    kPras40Dephos           = 0.1;
+    kFourEBP1Phos           = 0.1;
+    kFourEBP1Dephos         = 0.1;
+    kS6KPhos                = 0.1;
+    kS6KDephos              = 0.1;
+    kTORTSC                 = 0.1;
+    kTORPRAS                = 0.1;
+    
+    // background rates
+    kAktPhos_kcatB          = 0.0;
+    kFourEBP1PhosB          = 0.0;
+    kS6KPhosB               = 0.0;
+    
+    R2f     : IRS1 => IRS1pS636_639                 ; Cell * kIRS1Phos*IRS1*S6KpT389
+    R2b     : IRS1pS636_639 => IRS1                 ; Cell * kIRS1Inact*IRS1pS636_639
+    R4f     : Akt => AktpT308                       ; Cell * kAktPhos_kcat*Akt*Insulin
+    R4x     : Akt => AktpT308                       ; Cell * kAktPhos_kcatB*Akt
+    R4b     : AktpT308 => Akt                       ; Cell * kAktDephos*AktpT308*IRS1pS636_639
+    R5f     : TSC2 => TSC2pT1462                    ; Cell * kTSC2Phos*TSC2*AktpT308
+    R5b     : TSC2pT1462 => TSC2                    ; Cell * kTSC2Dephos*TSC2pT1462
+    R8f     : PRAS40 => PRAS40pT246                 ; Cell * kPras40Phos*PRAS40*AktpT308
+    R8b     : PRAS40pT246 => PRAS40                 ; Cell * kPras40Dephos*PRAS40pT246
+    R9f     : FourEBP1 => FourEBP1pT37_46           ; Cell * kFourEBP1Phos*FourEBP1*AA/(1+kTORTSC*TSC2+kTORPRAS*PRAS40)
+    R9x     : FourEBP1 => FourEBP1pT37_46           ; Cell * kFourEBP1PhosB*FourEBP1
+    R9b     : FourEBP1pT37_46 => FourEBP1           ; Cell * kFourEBP1Dephos*FourEBP1pT37_46
+    R10f    : S6K => S6KpT389                       ; Cell * kS6KPhos*S6K*AA/(1+kTORTSC*TSC2+kTORPRAS*PRAS40)
+    R10x    : S6K => S6KpT389                       ; Cell * kS6KPhosB*S6K
+    R10b    : S6KpT389 => S6K                       ; Cell * kS6KDephos*S6KpT389
+    
+    
+    // global variables
+    Insulin = 1;
+    AA = 1;
+
+    IRS1            = 10;
+    IRS1pS636_639   = 0;
+    AktpT308        = 0;
+    Akt             = 10;
+    TSC2pT1462      = 10;
+    TSC2            = 0;
+    PRAS40          = 10;
+    PRAS40pT246     = 0;
+    FourEBP1pT37_46 = 0;
+    FourEBP1        = 10;
+    S6KpT389        = 0;
+    S6K             = 10;
+
+end

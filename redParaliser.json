@@ -1,0 +1,11 @@
+{
+  "preAntStr":"antStringRedF.txt",
+  "postAntStr":"antStringRedM.txt",
+  "outAntStr":"antStringRedMP.txt",
+  "CDID":"multiTestRed",
+  "modelName":"AktModelWithMMRateLaws",
+  "modelVariations":["MCF7","ZR751"],
+  "hidenParams":["AA","Insulin"],
+  "bigNum":10000,
+  "path":"/Applications/copasi"
+}

@@ -1,0 +1,15 @@
+{
+  "simp":{"Stim":0},
+  "ODEcull":["A","B"],
+  "totalSubs":{"A":"A_T-Ap",
+               "B":"B_T-Bp"},
+  "solSteps":[{"eqs":["Ap"],
+               "sols":["Ap"],
+               "retain":["Bp"]}],
+  "guessConstraints":{"B_T":["B","Bp"]},
+  "varToTrack":["A_wb", "Ap_wb", "B_wb", "Bp_wb"],
+  "stimulation":{"Stim":1},
+  "preStim":{"Stim":0},
+  "times":[0, 4, 8, 12, 16, 20],
+  "stabMod":{"A":"A_T", "Ap":"A_T", "B":"B_T", "Bp":"B_T"}
+}

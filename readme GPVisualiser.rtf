@@ -1,0 +1,51 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1561\cocoasubrtf610
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 GPVisualiser.py\
+\
+This program facilitates the creation of diagrams and graphs from data produced by GPParamiteriser.py\
+\
+usage case example:\
+python GPVisualiser.py dataName:<someName> id:<id> cmdRec:comandRecord.p elements:elements.p PL:profile.csv\
+\
+
+\fs36 Command line inputs\
+
+\fs24 Passed as command like arguments in a <key>:<value> format. The program expects the following keys.\
+\
+dataName: a string. The name of a folder within the \'91data\'92 folder in which the data for plotting is contained.\
+\
+id: an optional tag to add to the plot output filenames (which currently otherwise have standardised output names) to ensure you do not overwrite plots you want to keep.\
+\
+cmdRec: the name of the record (in the data/<dataName> folder) of the commands and settings used to create a particular parameter estimation output. (see cmdRec in readme GPParamiteriser.rtf) The names of many of the data files GPVisualiser will look for will be read from here.\
+\
+elements: the name of the record (in the data/<dataName> folder) of the model elements associated with the models used to create a particular parameter estimation output. (see elemOut in readme GPParamiteriser.rtf) Will be used to infer what values GPVisualiser should attempt to graph from data.\
+\
+scaleToMatch: a string (\'93yes\'94/\'93no\'94) Determines whether model timecourses should be scaled to match experimental data (\'93yes\'94 case) or if experimental data and timecourses should be normalised (\'93no\'94 case).\
+\
+outScaleName: a string, the file name of a csv (in the data/<dataName> folder) in which the scales applied to time courses are saved. (and indexed in line with the parameter set).\
+\
+inScale: a string, the file name of a csv (in the data/<dataName> folder) of the same format produced (see outScaleName) which can be used to override the scales applied to timecourses produced by transfer parameter estimations (see paramTrans in GPParamiteriser.rtf). The intention is that an scales output of GPVisualiser acting on an original parameter estimation can be used to infer the scales in the visualisation of the output of an associated transfer parameterisation based on the original parameterisation. Scales are matched to timecouses using additional information about the (original) parameter sets they are based on in the transfer parameter estimation file.\
+\
+PL: a string. The name of a csv file (in the data/<dataName> folder) created by a profile likelihood calculation of GPParamiteriser (see PLRange in GPParamiteriser.rtf).\
+\
+maxPerGraph: a positive integer. Profile likelihood (see PL) and timecourse graphs tend to require multiple figures. This value indicates how many sub figures should be be fit in one figure.\
+\
+style: a string. used to change the background style for plots. options are darkgrid, whitegrid, dark, white and ticks.\
+\
+
+\fs36 output files / plots\
+
+\fs24 With the exception of the scales inferred from time courses (see scaleToMatch, outScaleName and inScale) all outputs are saved in the figures/<dataName> folder.\
+\
+waterfall.png: The RSS values associated with a parameter estimation (or transfer parameter estimation) returned from copasi are plotted as a line graph. The better the parameter estimation the more the graph should look like a set of uneven steps with a relatively wide final set on the left. A straight line or line with only one step may indicate the parameter estimation has too few copies or the model is very simple. A jagged / curvy line means the parameter estimation still has improvements to be made, especially if it is jagged / curvy at the left end.\
+\
+CaseTimeCourse-i0f0.png: The zeroth in a set of figures for the zeroth timecourse. \'93iXfY\'94 at the end indicates the Yth figure in the Xth timecourse.\
+\
+profile-0.png: the zeroth figure of the profile likelihood. plotted on a log scale for the x axis. Conceptually we are trying to see if a small increase or decrees in a parameter might facilitate a better parameter fit so a good fit is indicated by a clear preferably sharp minima in the centre of each sub graph.\
+\
+bestFit.csv: For reasons that are unclear the RSS values returned by copasi are not always as we would expect them to be. For this reason it was decided to code a custom RSS estimation. This file indicates that scoring so the most appropriate cases can be selected from the outputs of GPParamiteriser for reuse or as final results.}

@@ -1,0 +1,20 @@
+{
+ "cmdDict":{
+            "scaleModelKey":{
+                             "TSC2pT1462_wb":"TSC2pT1462_scale",
+                             "FourEBP1pT37_46_wb":"FourEBP1pT37_46_scale",
+                             "FourEBP1_wb":"FourEBP1_scale",
+                             "AktpT308_wb":"AktpT308_scale",
+                             "TSC2_wb":"TSC2_scale",
+                             "IRS1_wb":"IRS1_scale",
+                             "AktpS473_wb":"AktpS473_scale",
+                             "Akt_wb":"Akt_scale",
+                             "IRS1pS636_639_wb":"IRS1pS636_639_scale",
+                             "PRAS40_wb":"PRAS40_scale",
+                             "S6KpT389_wb":"S6KpT389_scale",
+                             "PRAS40pT246_wb":"PRAS40pT246_scale",
+                             "S6K_wb":"S6K_scale"
+                            }
+           }
+}
+            
