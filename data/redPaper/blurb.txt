@@ -1,0 +1,1 @@
+A parameter estimation using code to parameterise a single model to two cancer cell cell-lines (MCF7 and ZR75) in such a way that the same kinetic parameters fit both lines but with different initial conditions. The model is based on a small  network which includes a minimal number of elements omitting many unmeasured intermediaries in the network.

@@ -1,0 +1,1 @@
+A parameter estimation using code to parameterise a single model to two cancer cell cell-lines (MCF7 and ZR75) in such a way that the same kinetic parameters fit both lines but with different initial conditions. The model is based on a medium sized network which includes interactions between mTOR RICTOR and RPTOR.
