@@ -39,4 +39,5 @@ The figures in the paper 5-8 were created with data using scripts
 * GPParamiteriserPaper.sh
 * GPParamiteriserPaperRed.sh
 * GPParamiteriserZR75_P.sh
+
 Respectively. Expect these scripts to use around 200 cores and take up to 2 days to run.
