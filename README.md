@@ -17,7 +17,11 @@ The toyScriptSub.json is actually a simplification of a prior system where you h
 
 The base model file is antStringToy.txt that describes the model we actually want to parameterise. antStringToyM.txt is the model created by the stringWangler.py tool using the stabToy.json configuration file. antStringToyM.txt describes a model that has the built in, variable length, stabilisation period. antStringToyMP.txt is the model created from antStringToyM.txt by modelParaliser.py using the toyParaliser.json configuration file. The antStringToyMP.txt model adds multiple sub models for each cell line and adds the data normalisation step at the end of the model simulation.
 
-You can find full and thorough documentation for the tools in the readmes: readme GPParamiteriser.rtf, readme GPVisualiser.rtf, readme modelParaliser.rtf, readme stringWangler.rtf.
+You can find full and thorough documentation for the tools in the readmes:
+*readme GPParamiteriser.rtf
+*readme GPVisualiser.rtf
+*readme modelParaliser.rtf
+*readme stringWangler.rtf
 
 This toy example is simple enough that it can be run on a single core locally. For practical use this system uses slurm to run the code on multiple HPC cores.
 You can submit the shell file GPParamiteriserToy.sh to slurm using sbatch:
