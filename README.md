@@ -1,9 +1,9 @@
 # using this tool
-This repository contains a set of command line tools used to run parameter estimations using copasi as a back end. The 2 important feature it provides are the ability to force copasi to allow a model to reach a stable state before running the simulations used for parameter estimation. The second feature is the ability to run multiple copies of a model concurrently within the parameterisation process and apply a normalisation step to the data produced by the simulations comprising the parameterisation process.
+This repository contains a set of command line tools for running parameter estimations using copasi as a back end. The 2 important features it provides are: 1) the ability to force copasi to allow a model to reach a stable state before running the simulations used for parameter estimation; 2) the ability to run multiple copies of a model concurrently within the parameterisation process and apply a normalisation step to the data produced by the simulations comprising the parameterisation process.
 
-It stands alongside our research paper and can be used to recreate to process used to generate the results in that paper.
+It stands alongside our research paper and can be used to generate the results in that paper.
 
-The simplest way to run the toy parameter estimation is to move into the directory with GPParamiteriser.py and toyScriptSub.json in and run the command line:
+The simplest way to run the toy parameter estimation is to move into the directory with GPParamiteriser.py and toyScriptSub.json and run the command line:
 
 `python GPParamiteriser.py configFile:toyScriptSub.json copasiPath:<insert path to copasi>`
 
