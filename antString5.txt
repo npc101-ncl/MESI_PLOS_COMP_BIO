@@ -1,0 +1,301 @@
+
+function MM(km, Vmax, S)
+    Vmax * S / (km + S)
+end
+
+function MMWithKcat(km, kcat, S, E)
+    kcat * E * S / (km + S)
+end
+
+function NonCompetitiveInhibition(km, ki, Vmax, n, I, S)
+    Vmax * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+function NonCompetitiveInhibitionWithKcat(km, ki, kcat, E, n, I, S)
+    kcat * E * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+function NonCompetitiveInhibitionWithKcatAndExtraActivator(km, ki, kcat, E1, E2, n, I, S)
+    kcat * E1 * E2 * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+
+function MA1(k, S)
+    k * S
+end
+
+function MA2(k, S1, S2)
+    k * S1 * S2
+end
+
+function MA1Mod(k, S, M)
+    k * S * M
+end
+
+function MA2Mod(k, S1, S2, M)
+    k * S1 * S2 * M
+end
+
+function CompetitiveInhibitionWithKcat(km, ki, kcat, E, I, S)
+    kcat * E * S / (km + S + ((km * I )/ ki)  )
+end
+
+function CompetitiveInhibition(Vmax, km, ki, I, S)
+    Vmax * S / (km + S + ((km * I )/ ki)  )
+end
+
+function Hill(km, kcat, L, S, h)
+    kcat * L * (S / km)^h  /   1 + (S / km)^h
+end
+
+model AktModelWithMMRateLaws()
+    compartment             Cell = 1;
+    var IRS1                in Cell;
+    var IRS1a               in Cell;
+    var IRS1pS636_639       in Cell;
+    var Akt                 in Cell;
+    var AktpT308            in Cell;
+    var AktpS473            in Cell;
+    var AktpT308S473        in Cell;
+    var TSC2                in Cell;
+    var TSC2pT1462          in Cell;
+    var PRAS40              in Cell;
+    var PRAS40pT246         in Cell;
+    var S6K                 in Cell;
+    var S6KpT389            in Cell;
+    var FourEBP1            in Cell;
+    var FourEBP1pT37_46     in Cell;
+    var PI3K                in Cell;
+    var pPI3K               in Cell;
+    var pmTORC1            in Cell;
+    var mTORC1cyt          in Cell;
+    var mTORC1lys          in Cell;
+    var pmTORC2            in Cell;
+    var mTORC2             in Cell;
+    var RPTOR              in Cell;
+    var RICTOR             in Cell;
+    var mTOR               in Cell;       
+
+    const Insulin          in Cell;
+    const AA               in Cell;
+    const InsulinB         in Cell;
+    const AAB              in Cell;
+    
+    IRS1_sum       := IRS1+IRS1a+IRS1pS636_639
+    PI3K_sum       := PI3K+pPI3K
+    Akt_sum        := Akt+AktpT308+AktpS473+AktpT308S473
+    TSC2_sum       := TSC2+TSC2pT1462
+    PRAS40_sum     := PRAS40+PRAS40pT246
+    FourEBP1_sum   := FourEBP1+FourEBP1pT37_46
+    S6K_sum        := S6K+S6KpT389
+    
+    Akt_wb             := Akt_sum
+    AktpT308_wb        := AktpT308+AktpT308S473
+    AktpS473_wb        := AktpS473+AktpT308S473
+    PRAS40_wb          := PRAS40_sum
+    PRAS40pT246_wb     := PRAS40pT246
+    S6K_wb             := S6K_sum
+    S6KpT389_wb        := S6KpT389
+    TSC2_wb            := TSC2_sum
+    TSC2pT1462_wb      := TSC2pT1462
+    IRS1_wb            := IRS1_sum
+    IRS1pS636_639_wb   := IRS1pS636_639
+    FourEBP1_wb        := FourEBP1_sum
+    FourEBP1pT37_46_wb := FourEBP1pT37_46
+    MTORC1_wb          := pmTORC1+mTORC1cyt+mTORC1lys
+    MTORC2_wb          := pmTORC2+mTORC2
+
+    // kinetic parameters
+    kIRS1Act                = 0.1;
+    kIRS1Inact              = 0.1;
+    kIRS1Phos               = 0.1;
+    kPI3KPhos               = 0.1;
+    kPI3KDephos             = 0.1;
+    kAktPhos_kcat           = 0.1;
+    kAktDephos              = 0.1;
+    
+    // to be determined
+    kAktByTor2Phos          = 0.1;
+    kAktByTor2Dephos        = 0.1;
+    
+    kTSC2Phos               = 0.1;
+    
+    // to be determined
+    kTSC2PhosBoost          = 1;
+    
+    kTSC2Dephos             = 0.1;
+    kmTORC1cytToLys         = 0.1;
+    kmTORC1LysToCyt         = 0.1;
+    kmTORC1Phos             = 0.1;
+    kmTORC1Dephos           = 0.1;
+    kPras40Phos             = 0.1;
+    kPras40Dephos           = 0.1;
+    kFourEBP1Phos           = 0.1;
+    kFourEBP1Dephos         = 0.1;
+    kS6KPhos                = 0.1;
+    kS6KDephos              = 0.1;
+    
+    // paramiters for candidate reactions
+    kRAS                    = 0;
+    kmTORC2Dephos           = 0.1;
+    kmTORC2DephosByS6K      = 0;
+    
+    // raptor
+    kmTOR_RIC_Comb          = 0;
+    kmTORC2_Dis             = 0;
+    kmTOR_RPT_Comb          = 0;
+    kmTORC1_Dis             = 0;
+    
+    // background reaction rates
+    kBGR_IRS1Phos           = 0;
+    kBGR_PI3KPhos           = 0;
+    kBGR_AktPhos_kcat_1     = 0;
+    kBGR_AktPhos_kcat_2     = 0;
+    kBGR_AktByTor2Phos_1    = 0;
+    kBGR_AktByTor2Phos_2    = 0;
+    kBGR_TSC2Phos           = 0;
+    kBGR_mTORC1Dephos       = 0;
+    kBGR_Pras40Phos         = 0;
+    kBGR_FourEBP1Phos       = 0;
+    kBGR_S6KPhos            = 0;
+    
+
+    // reactions // MMWithKcat(km, kcat, S, E)
+    // function CompetitiveInhibitionWithKcat(km, ki, kcat, E, I, S)
+    // function MM(km, Vmax, S)
+    // function NonCompetitiveInhibitionWithKcat(km, ki, kcat, E, n, I, S)
+    R1f     : IRS1 => IRS1a                         ; Cell * kIRS1Act*IRS1*(Insulin+InsulinB)
+    R2f     : IRS1a => IRS1pS636_639                ; Cell * kIRS1Phos*IRS1a*S6KpT389
+    R2b     : IRS1pS636_639 => IRS1                 ; Cell * kIRS1Inact*IRS1pS636_639
+    R3f     : PI3K => pPI3K                         ; Cell * kPI3KPhos*PI3K*IRS1a
+    R3b     : pPI3K => PI3K                         ; Cell * kPI3KDephos*pPI3K
+    R4f     : Akt => AktpT308                       ; Cell * kAktPhos_kcat*Akt*pPI3K
+    R4b     : AktpT308 => Akt                       ; Cell * kAktDephos*AktpT308
+    R4p1f   : AktpS473 => AktpT308S473              ; Cell * kAktPhos_kcat*AktpS473*pPI3K
+    R4p1b   : AktpT308S473 => AktpS473              ; Cell * kAktDephos*AktpT308S473
+    R4p2f   : Akt => AktpS473                       ; Cell * kAktByTor2Phos*Akt*pmTORC2
+    R4p2b   : AktpS473 => Akt                       ; Cell * kAktByTor2Dephos*AktpS473
+    R4p3f   : AktpT308 => AktpT308S473              ; Cell * kAktByTor2Phos*AktpT308*pmTORC2
+    R4p3b   : AktpT308S473 => AktpT308              ; Cell * kAktByTor2Dephos*AktpT308S473
+    R5f     : TSC2 => TSC2pT1462                    ; Cell * kTSC2Phos*TSC2*AktpT308
+    R5p1f   : TSC2 => TSC2pT1462                    ; Cell * kTSC2Phos*kTSC2PhosBoost*TSC2*AktpT308S473
+    R5b     : TSC2pT1462 => TSC2                    ; Cell * kTSC2Dephos*TSC2pT1462
+    R6f     : mTORC1cyt => mTORC1lys                ; Cell * kmTORC1cytToLys*mTORC1cyt*(AA+AAB)
+    R6b     : mTORC1lys => mTORC1cyt                ; Cell * kmTORC1LysToCyt*mTORC1lys
+    R7f     : mTORC1lys => pmTORC1                  ; Cell * kmTORC1Phos*mTORC1lys
+    R7b     : pmTORC1 => mTORC1lys                  ; Cell * kmTORC1Dephos*TSC2*pmTORC1
+    R8f     : PRAS40 => PRAS40pT246                 ; Cell * kPras40Phos*PRAS40*(AktpT308+AktpT308S473)
+    R8b     : PRAS40pT246 => PRAS40                 ; Cell * kPras40Dephos*PRAS40pT246
+    R9f     : FourEBP1 => FourEBP1pT37_46           ; Cell * kFourEBP1Phos*FourEBP1*pmTORC1
+    R9b     : FourEBP1pT37_46 => FourEBP1           ; Cell * kFourEBP1Dephos*FourEBP1pT37_46
+    R10f    : S6K => S6KpT389                       ; Cell * kS6KPhos*S6K*pmTORC1
+    R10b    : S6KpT389 => S6K                       ; Cell * kS6KDephos*S6KpT389
+    // candidte reactions
+    R11f3   : mTORC2 => pmTORC2                     ; Cell * kRAS*mTORC2*(Insulin+InsulinB)
+    R11b1   : pmTORC2 => mTORC2                     ; Cell * kmTORC2Dephos*pmTORC2
+    R11b2   : pmTORC2 => mTORC2                     ; Cell * kmTORC2DephosByS6K*pmTORC2*S6KpT389
+    
+    R13f    : RICTOR + mTOR => mTORC2               ; Cell * kmTOR_RIC_Comb*RICTOR*mTOR
+    R13b1   : mTORC2 => RICTOR + mTOR               ; Cell * kmTORC2_Dis*mTORC2
+    R13b2   : pmTORC2 => RICTOR + mTOR              ; Cell * kmTORC2_Dis*pmTORC2
+    R14f    : RPTOR + mTOR => mTORC1cyt             ; Cell * kmTOR_RPT_Comb*RPTOR*mTOR
+    R14b1   : mTORC1cyt => RPTOR + mTOR             ; Cell * kmTORC1_Dis*mTORC1cyt
+    R14b2   : mTORC1lys => RPTOR + mTOR             ; Cell * kmTORC1_Dis*mTORC1lys
+    R14b3   : pmTORC1 => RPTOR + mTOR               ; Cell * kmTORC1_Dis*pmTORC1
+    // background reactions
+    R2Xf    : IRS1a => IRS1pS636_639                ; Cell * kBGR_IRS1Phos*IRS1a
+    R3Xf    : PI3K => pPI3K                         ; Cell * kBGR_PI3KPhos*PI3K
+    R4Xf    : Akt => AktpT308                       ; Cell * kBGR_AktPhos_kcat_1*Akt
+    R4p1Xf  : AktpS473 => AktpT308S473              ; Cell * kBGR_AktPhos_kcat_2*AktpS473
+    R4p2Xf  : Akt => AktpS473                       ; Cell * kBGR_AktByTor2Phos_1*Akt
+    R4p3Xf  : AktpT308 => AktpT308S473              ; Cell * kBGR_AktByTor2Phos_2*AktpT308
+    R5Xf    : TSC2 => TSC2pT1462                    ; Cell * kBGR_TSC2Phos*TSC2
+    R7Xb    : pmTORC1 => mTORC1lys                  ; Cell * kBGR_mTORC1Dephos*pmTORC1
+    R8Xf    : PRAS40 => PRAS40pT246                 ; Cell * kBGR_Pras40Phos*PRAS40
+    R9Xf    : FourEBP1 => FourEBP1pT37_46           ; Cell * kBGR_FourEBP1Phos*FourEBP1
+    R10Xf   : S6K => S6KpT389                       ; Cell * kBGR_S6KPhos*S6K
+    
+    // global variables
+    Insulin = 1;
+    InsulinB = 0;
+    AA = 1;
+    AAB = 0;
+
+    IRS1            = 10;
+    IRS1a           = 0;
+    IRS1pS636_639   = 0;
+    PI3K            = 10;
+    pPI3K           = 0;
+    AktpT308S473    = 0;
+    AktpS473        = 0;
+    AktpT308        = 0;
+    Akt             = 10;
+    TSC2pT1462      = 10;
+    TSC2            = 0;
+    pmTORC1         = 0;
+    mTORC1cyt       = 10;
+    mTORC1lys       = 0;
+    PRAS40          = 10;
+    PRAS40pT246     = 0;
+    FourEBP1pT37_46 = 0;
+    FourEBP1        = 10;
+    S6KpT389        = 0;
+    S6K             = 10;
+    pmTORC2         = 0;
+    mTORC2          = 10;
+    RPTOR           = 0;
+    RICTOR          = 0;
+    mTOR            = 1;
+    
+    // to check that steady state is steady
+    IRS1_z            = IRS1;
+    IRS1a_z           = IRS1a;
+    IRS1pS636_639_z   = IRS1pS636_639;
+    Akt_z             = Akt;
+    AktpT308_z        = AktpT308;
+    AktpS473_z        = AktpS473;
+    AktpT308S473_z    = AktpT308S473;
+    TSC2_z            = TSC2;
+    TSC2pT1462_z      = TSC2pT1462;
+    PRAS40_z          = PRAS40;
+    PRAS40pT246_z     = PRAS40pT246;
+    S6K_z             = S6K;
+    S6KpT389_z        = S6KpT389;
+    FourEBP1_z        = FourEBP1;
+    FourEBP1pT37_46_z = FourEBP1pT37_46;
+    PI3K_z            = PI3K;
+    pPI3K_z           = pPI3K;
+    pmTORC1_z         = pmTORC1;
+    mTORC1cyt_z       = mTORC1cyt;
+    mTORC1lys_z       = mTORC1lys;
+    pmTORC2_z         = pmTORC2;
+    mTORC2_z          = mTORC2;
+    RPTOR_z           = RPTOR;
+    RICTOR_z          = RICTOR;
+    mTOR_z            = mTOR;
+
+    IRS1_F          := IRS1          - IRS1_z
+    IRS1a_F         := IRS1a         - IRS1a_z
+    IRS1pS636_639_F := IRS1pS636_639 - IRS1pS636_639_z
+    Akt_F           := Akt           - Akt_z
+    AktpT308_F      := AktpT308      - AktpT308_z
+    AktpS473_F      := AktpS473      - AktpS473_z
+    AktpT308S473_F  := AktpT308S473  - AktpT308S473_z
+    TSC2_F          := TSC2          - TSC2_z
+    TSC2pT1462_F    := TSC2pT1462    - TSC2pT1462_z
+    PRAS40_F        := PRAS40        - PRAS40_z
+    PRAS40pT246_F   := PRAS40pT246   - PRAS40pT246_z
+    S6K_F           := S6K           - S6K_z
+    S6KpT389_F      := S6KpT389      - S6KpT389_z
+    PI3K_F          := PI3K          - PI3K_z
+    pPI3K_F         := pPI3K         - pPI3K_z
+    pmTORC1_F       := pmTORC1       - pmTORC1_z
+    mTORC1cyt_F     := mTORC1cyt     - mTORC1cyt_z
+    mTORC1lys_F     := mTORC1lys     - mTORC1lys_z
+    pmTORC2_F       := pmTORC2       - pmTORC2_z
+    mTORC2_F        := mTORC2        - mTORC2_z
+    RPTOR_F         := RPTOR         - RPTOR_z
+    RICTOR_F        := RICTOR        - RICTOR_z
+    mTOR_F          := mTOR          - mTOR_z
+
+end
