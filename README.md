@@ -52,4 +52,4 @@ The following files are part of abandoned work refrenced in the suplientory and 
 * tor5-primer.sh
 * t47d_data.xlsx
 
-The remaining missing files for this work are too large for github and can obtained from the paper suplimentory files and belong in the data/red5 directory.
+The remaining files for this work are too large for github so they were compressed as zip files in the in the data/red5 directory. You will need to manually decompress them after you download the repository.
