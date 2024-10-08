@@ -41,3 +41,14 @@ The figures in the paper 5-8 were created with data using scripts
 * GPParamiteriserZR75_P.sh
 
 Respectively. Expect these scripts to use around 200 cores and take up to 2 days to run.
+
+## abandoned work
+The following files are part of abandoned work refrenced in the suplientory and can be ignored.
+* antString5.txt
+* scaleFinderXParam.py
+* scaleFinderXPrimer.py
+* scaleFinderXVisualisor.py
+* tor5-param.sh
+* tor5-primer.sh
+* t47d_data.xlsx
+The remaining missing files for this work are too large for github and can obtained from the paper suplimentory files and belong in the data/red5 directory.
