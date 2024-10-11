@@ -48,6 +48,7 @@ The following files are part of abandoned work refrenced in the suplientory and 
 * scaleFinderXParam.py
 * scaleFinderXPrimer.py
 * scaleFinderXVisualisor.py
+* scaleFinderXResults.py
 * tor5-param.sh
 * tor5-primer.sh
 * t47d_data.xlsx
