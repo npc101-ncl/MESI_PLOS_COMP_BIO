@@ -1,0 +1,414 @@
+
+function MM(km, Vmax, S)
+    Vmax * S / (km + S)
+end
+
+function MMWithKcat(km, kcat, S, E)
+    kcat * E * S / (km + S)
+end
+
+function NonCompetitiveInhibition(km, ki, Vmax, n, I, S)
+    Vmax * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+function NonCompetitiveInhibitionWithKcat(km, ki, kcat, E, n, I, S)
+    kcat * E * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+function NonCompetitiveInhibitionWithKcatAndExtraActivator(km, ki, kcat, E1, E2, n, I, S)
+    kcat * E1 * E2 * S / ( (km + S) * (1 + (I / ki)^n ) )
+end
+
+
+function MA1(k, S)
+    k * S
+end
+
+function MA2(k, S1, S2)
+    k * S1 * S2
+end
+
+function MA1Mod(k, S, M)
+    k * S * M
+end
+
+function MA2Mod(k, S1, S2, M)
+    k * S1 * S2 * M
+end
+
+function CompetitiveInhibitionWithKcat(km, ki, kcat, E, I, S)
+    kcat * E * S / (km + S + ((km * I )/ ki)  )
+end
+
+function CompetitiveInhibition(Vmax, km, ki, I, S)
+    Vmax * S / (km + S + ((km * I )/ ki)  )
+end
+
+function Hill(km, kcat, L, S, h)
+    kcat * L * (S / km)^h  /   1 + (S / km)^h
+end
+
+model AktModelWithMMRateLaws()
+    compartment             Cell = 1;
+    var IRS1                in Cell;
+    var IRS1a               in Cell;
+    var IRS1pS636_639       in Cell;
+    var Akt                 in Cell;
+    var AktpT308            in Cell;
+    var AktpS473            in Cell;
+    var AktpT308S473        in Cell;
+    var TSC2                in Cell;
+    var TSC2pT1462          in Cell;
+    var PRAS40              in Cell;
+    var PRAS40pT246         in Cell;
+    var S6K                 in Cell;
+    var S6KpT389            in Cell;
+    var FourEBP1            in Cell;
+    var FourEBP1pT37_46     in Cell;
+    var PI3K                in Cell;
+    var pPI3K               in Cell;
+    var pmTORC1            in Cell;
+    var mTORC1cyt          in Cell;
+    var mTORC1lys          in Cell;
+    var pmTORC2            in Cell;
+    var mTORC2             in Cell;
+    var RPTOR              in Cell;
+    var RICTOR             in Cell;
+    var mTOR               in Cell;       
+
+    const Insulin          in Cell;
+    const AA               in Cell;
+    const InsulinB         in Cell;
+    const AAB              in Cell;
+    
+    IRS1_sum       := IRS1+IRS1a+IRS1pS636_639
+    PI3K_sum       := PI3K+pPI3K
+    Akt_sum        := Akt+AktpT308+AktpS473+AktpT308S473
+    TSC2_sum       := TSC2+TSC2pT1462
+    PRAS40_sum     := PRAS40+PRAS40pT246
+    FourEBP1_sum   := FourEBP1+FourEBP1pT37_46
+    S6K_sum        := S6K+S6KpT389
+    
+    Akt_wb             := Akt_sum
+    AktpT308_wb        := AktpT308+AktpT308S473
+    AktpS473_wb        := AktpS473+AktpT308S473
+    PRAS40_wb          := PRAS40_sum
+    PRAS40pT246_wb     := PRAS40pT246
+    S6K_wb             := S6K_sum
+    S6KpT389_wb        := S6KpT389
+    TSC2_wb            := TSC2_sum
+    TSC2pT1462_wb      := TSC2pT1462
+    IRS1_wb            := IRS1_sum
+    IRS1pS636_639_wb   := IRS1pS636_639
+    FourEBP1_wb        := FourEBP1_sum
+    FourEBP1pT37_46_wb := FourEBP1pT37_46
+
+    // kinetic parameters
+    kIRS1Act                = 0.1;
+    kIRS1Inact              = 0.1;
+    kIRS1Phos               = 0.1;
+    kPI3KPhos               = 0.1;
+    kPI3KDephos             = 0.1;
+    kAktPhos_kcat           = 0.1;
+    kAktDephos              = 0.1;
+    
+    // to be determined
+    kAktByTor2Phos          = 0.1;
+    kAktByTor2Dephos        = 0.1;
+    
+    kTSC2Phos               = 0.1;
+    
+    // to be determined
+    kTSC2PhosBoost          = 1;
+    
+    kTSC2Dephos             = 0.1;
+    kmTORC1cytToLys         = 0.1;
+    kmTORC1LysToCyt         = 0.1;
+    kmTORC1Phos             = 0.1;
+    kmTORC1Dephos           = 0.1;
+    kPras40Phos             = 0.1;
+    kPras40Dephos           = 0.1;
+    kFourEBP1Phos           = 0.1;
+    kFourEBP1Dephos         = 0.1;
+    kS6KPhos                = 0.1;
+    kS6KDephos              = 0.1;
+    
+    // paramiters for candidate reactions
+    kRAS                    = 0;
+    kmTORC2Dephos           = 0.1;
+    kmTORC2DephosByS6K      = 0;
+    
+    // raptor
+    kmTOR_RIC_Comb          = 0;
+    kmTORC2_Dis             = 0;
+    kmTOR_RPT_Comb          = 0;
+    kmTORC1_Dis             = 0;
+    
+
+    // reactions // MMWithKcat(km, kcat, S, E)
+    // function CompetitiveInhibitionWithKcat(km, ki, kcat, E, I, S)
+    // function MM(km, Vmax, S)
+    // function NonCompetitiveInhibitionWithKcat(km, ki, kcat, E, n, I, S)
+    R1f     : IRS1 => IRS1a                         ; Cell * kIRS1Act*IRS1*(Insulin+InsulinB)
+    R2f     : IRS1a => IRS1pS636_639                ; Cell * kIRS1Phos*IRS1a*S6KpT389
+    R2b     : IRS1pS636_639 => IRS1                 ; Cell * kIRS1Inact*IRS1pS636_639
+    R3f     : PI3K => pPI3K                         ; Cell * kPI3KPhos*PI3K*IRS1a
+    R3b     : pPI3K => PI3K                         ; Cell * kPI3KDephos*pPI3K
+    R4f     : Akt => AktpT308                       ; Cell * kAktPhos_kcat*Akt*pPI3K
+    R4b     : AktpT308 => Akt                       ; Cell * kAktDephos*AktpT308
+    R4p1f   : AktpS473 => AktpT308S473              ; Cell * kAktPhos_kcat*AktpS473*pPI3K
+    R4p1b   : AktpT308S473 => AktpS473              ; Cell * kAktDephos*AktpT308S473
+    R4p2f   : Akt => AktpS473                       ; Cell * kAktByTor2Phos*Akt*pmTORC2
+    R4p2b   : AktpS473 => Akt                       ; Cell * kAktByTor2Dephos*AktpS473
+    R4p3f   : AktpT308 => AktpT308S473              ; Cell * kAktByTor2Phos*AktpT308*pmTORC2
+    R4p3b   : AktpT308S473 => AktpT308              ; Cell * kAktByTor2Dephos*AktpT308S473
+    R5f     : TSC2 => TSC2pT1462                    ; Cell * kTSC2Phos*TSC2*AktpT308
+    R5p1f   : TSC2 => TSC2pT1462                    ; Cell * kTSC2Phos*kTSC2PhosBoost*TSC2*AktpT308S473
+    R5b     : TSC2pT1462 => TSC2                    ; Cell * kTSC2Dephos*TSC2pT1462
+    R6f     : mTORC1cyt => mTORC1lys                ; Cell * kmTORC1cytToLys*mTORC1cyt*(AA+AAB)
+    R6b     : mTORC1lys => mTORC1cyt                ; Cell * kmTORC1LysToCyt*mTORC1lys
+    R7f     : mTORC1lys => pmTORC1                  ; Cell * kmTORC1Phos*mTORC1lys
+    R7b     : pmTORC1 => mTORC1lys                  ; Cell * kmTORC1Dephos*TSC2*pmTORC1
+    R8f     : PRAS40 => PRAS40pT246                 ; Cell * kPras40Phos*PRAS40*(AktpT308+AktpT308S473)
+    R8b     : PRAS40pT246 => PRAS40                 ; Cell * kPras40Dephos*PRAS40pT246
+    R9f     : FourEBP1 => FourEBP1pT37_46           ; Cell * kFourEBP1Phos*FourEBP1*pmTORC1
+    R9b     : FourEBP1pT37_46 => FourEBP1           ; Cell * kFourEBP1Dephos*FourEBP1pT37_46
+    R10f    : S6K => S6KpT389                       ; Cell * kS6KPhos*S6K*pmTORC1
+    R10b    : S6KpT389 => S6K                       ; Cell * kS6KDephos*S6KpT389
+    // candidte reactions
+    R11f3   : mTORC2 => pmTORC2                     ; Cell * kRAS*mTORC2*(Insulin+InsulinB)
+    R11b1   : pmTORC2 => mTORC2                     ; Cell * kmTORC2Dephos*pmTORC2
+    R11b2   : pmTORC2 => mTORC2                     ; Cell * kmTORC2DephosByS6K*pmTORC2*S6KpT389
+    
+    R13f    : RICTOR + mTOR => mTORC2               ; Cell * kmTOR_RIC_Comb*RICTOR*mTOR
+    R13b1   : mTORC2 => RICTOR + mTOR               ; Cell * kmTORC2_Dis*mTORC2
+    R13b2   : pmTORC2 => RICTOR + mTOR              ; Cell * kmTORC2_Dis*pmTORC2
+    R14f    : RPTOR + mTOR => mTORC1cyt             ; Cell * kmTOR_RPT_Comb*RPTOR*mTOR
+    R14b1   : mTORC1cyt => RPTOR + mTOR             ; Cell * kmTORC1_Dis*mTORC1cyt
+    R14b2   : mTORC1lys => RPTOR + mTOR             ; Cell * kmTORC1_Dis*mTORC1lys
+    R14b3   : pmTORC1 => RPTOR + mTOR               ; Cell * kmTORC1_Dis*pmTORC1
+    
+    // global variables
+    Insulin = 0 ;
+    InsulinB = 0;
+    AA = 0 ;
+    AAB = 0;
+
+    RICTOR_T = 1 ;
+    FourEBP1_T = 1 ;
+    S6K_T = 1 ;
+    PRAS40_T = 1 ;
+    RPTOR_T = 1 ;
+    IRS1_T = 1 ;
+    mTOR_T = 1 ;
+    PI3K_T = 1 ;
+    TSC2_T = 1 ;
+    Akt_T = 1 ;
+    mySubsA0 = S6K_T*kS6KPhos ;
+    mySubsA1 = kS6KDephos ;
+    mySubsA2 = kS6KPhos ;
+    mySubsB0 = 1 ;
+    mySubsB1 = InsulinB*kIRS1Act*kIRS1Inact*mySubsA1 ;
+    mySubsB2 = InsulinB*kIRS1Act*kIRS1Inact*mySubsA2 + InsulinB*kIRS1Act*kIRS1Phos*mySubsA0 + kIRS1Inact*kIRS1Phos*mySubsA0 ;
+    mySubsB3 = IRS1_T*InsulinB*kIRS1Act*kIRS1Inact*mySubsA1 ;
+    mySubsB4 = IRS1_T*InsulinB*kIRS1Act*kIRS1Inact*mySubsA2 ;
+    mySubsB5 = IRS1_T*InsulinB*kIRS1Act*kIRS1Phos*mySubsA0 ;
+    mySubsB6 = InsulinB*kIRS1Act*kIRS1Inact*mySubsA1 ;
+    mySubsB7 = InsulinB*kIRS1Act*kIRS1Inact*mySubsA2 + InsulinB*kIRS1Act*kIRS1Phos*mySubsA0 + kIRS1Inact*kIRS1Phos*mySubsA0 ;
+    mySubsC0 = 1 ;
+    mySubsC1 = kPI3KDephos*mySubsB1 + kPI3KPhos*mySubsB0*mySubsB3 ;
+    mySubsC2 = kPI3KDephos*mySubsB2 + kPI3KPhos*mySubsB0*mySubsB4 ;
+    mySubsC3 = PI3K_T*kPI3KPhos*mySubsB0*mySubsB3 ;
+    mySubsC4 = PI3K_T*kPI3KPhos*mySubsB0*mySubsB4 ;
+    mySubsD0 = 1 ;
+    mySubsD1 = kAktByTor2Dephos*kAktDephos*mySubsC1 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD2 = 1 ;
+    mySubsD3 = kAktByTor2Dephos*kAktDephos*mySubsC2 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD4 = kAktByTor2Phos*kAktDephos*mySubsC2 ;
+    mySubsD5 = kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD6 = kAktByTor2Phos*kAktDephos*mySubsC1 + kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD7 = 0 ;
+    mySubsD8 = Akt_T*kAktByTor2Phos*kAktDephos*mySubsC1 ;
+    mySubsD9 = Akt_T*kAktByTor2Phos*kAktDephos*mySubsC2 ;
+    mySubsD10 = 1 ;
+    mySubsD11 = kAktByTor2Dephos*kAktDephos*mySubsC1 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD12 = 1 ;
+    mySubsD13 = kAktByTor2Dephos*kAktDephos*mySubsC2 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD14 = kAktByTor2Phos*kAktDephos*mySubsC2 ;
+    mySubsD15 = kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD16 = kAktByTor2Phos*kAktDephos*mySubsC1 + kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD17 = Akt_T*kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD18 = Akt_T*kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD19 = 1 ;
+    mySubsD20 = kAktByTor2Dephos*kAktDephos*mySubsC1 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD21 = 1 ;
+    mySubsD22 = kAktByTor2Dephos*kAktDephos*mySubsC2 + kAktByTor2Dephos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD23 = kAktByTor2Phos*kAktDephos*mySubsC2 ;
+    mySubsD24 = kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsD25 = kAktByTor2Phos*kAktDephos*mySubsC1 + kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD26 = 0 ;
+    mySubsD27 = Akt_T*kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC3 ;
+    mySubsD28 = Akt_T*kAktByTor2Phos*kAktPhos_kcat*mySubsC0*mySubsC4 ;
+    mySubsE0 = 1 ;
+    mySubsE1 = kPras40Dephos*mySubsD11*mySubsD20 + kPras40Phos*mySubsD10*mySubsD17*mySubsD20 + kPras40Phos*mySubsD11*mySubsD19*mySubsD26 ;
+    mySubsE2 = 1 ;
+    mySubsE3 = kPras40Dephos*mySubsD11*mySubsD21*mySubsD22 + kPras40Dephos*mySubsD12*mySubsD13*mySubsD20 + kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD22 + kPras40Phos*mySubsD10*mySubsD18*mySubsD20 + kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD26 ;
+    mySubsE4 = kPras40Dephos*mySubsD11*mySubsD21*mySubsD23 ;
+    mySubsE5 = kPras40Dephos*mySubsD11*mySubsD21*mySubsD24 ;
+    mySubsE6 = kPras40Dephos*mySubsD12*mySubsD13*mySubsD25 ;
+    mySubsE7 = kPras40Dephos*mySubsD12*mySubsD14*mySubsD20 ;
+    mySubsE8 = kPras40Dephos*mySubsD12*mySubsD14*mySubsD25 ;
+    mySubsE9 = kPras40Dephos*mySubsD12*mySubsD15*mySubsD20 ;
+    mySubsE10 = kPras40Dephos*mySubsD12*mySubsD15*mySubsD25 ;
+    mySubsE11 = kPras40Dephos*mySubsD16*mySubsD21*mySubsD22 ;
+    mySubsE12 = kPras40Dephos*mySubsD16*mySubsD21*mySubsD23 ;
+    mySubsE13 = kPras40Dephos*mySubsD16*mySubsD21*mySubsD24 ;
+    mySubsE14 = kPras40Phos*mySubsD10*mySubsD18*mySubsD25 ;
+    mySubsE15 = kPras40Phos*mySubsD11*mySubsD19*mySubsD28 ;
+    mySubsE16 = kPras40Phos*mySubsD16*mySubsD19*mySubsD28 ;
+    mySubsE17 = kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD23 ;
+    mySubsE18 = kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD24 ;
+    mySubsE19 = kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD27 ;
+    mySubsE20 = kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD26 ;
+    mySubsE21 = kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD27 ;
+    mySubsE22 = kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD26 ;
+    mySubsE23 = kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD27 ;
+    mySubsE24 = kPras40Dephos*mySubsD11*mySubsD25 + kPras40Dephos*mySubsD16*mySubsD20 + kPras40Phos*mySubsD10*mySubsD17*mySubsD25 + kPras40Phos*mySubsD11*mySubsD19*mySubsD27 + kPras40Phos*mySubsD16*mySubsD19*mySubsD26 ;
+    mySubsE25 = 1 ;
+    mySubsE26 = kPras40Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD22 + kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD22 ;
+    mySubsE27 = kPras40Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD23 ;
+    mySubsE28 = kPras40Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD24 ;
+    mySubsE29 = kPras40Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD22 ;
+    mySubsE30 = kPras40Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD23 ;
+    mySubsE31 = kPras40Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD24 ;
+    mySubsE32 = kPras40Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD22 ;
+    mySubsE33 = kPras40Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD23 ;
+    mySubsE34 = kPras40Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD24 ;
+    mySubsE35 = kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD23 ;
+    mySubsE36 = kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD24 ;
+    mySubsE37 = kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD28 ;
+    mySubsE38 = kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD28 ;
+    mySubsE39 = kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD28 ;
+    mySubsE40 = kPras40Dephos*mySubsD16*mySubsD25 + kPras40Phos*mySubsD16*mySubsD19*mySubsD27 ;
+    mySubsE41 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD17*mySubsD20 + PRAS40_T*kPras40Phos*mySubsD11*mySubsD19*mySubsD26 ;
+    mySubsE42 = 1 ;
+    mySubsE43 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD22 + PRAS40_T*kPras40Phos*mySubsD10*mySubsD18*mySubsD20 + PRAS40_T*kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD26 ;
+    mySubsE44 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD18*mySubsD25 ;
+    mySubsE45 = PRAS40_T*kPras40Phos*mySubsD11*mySubsD19*mySubsD28 ;
+    mySubsE46 = PRAS40_T*kPras40Phos*mySubsD16*mySubsD19*mySubsD28 ;
+    mySubsE47 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD23 ;
+    mySubsE48 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD24 ;
+    mySubsE49 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD27 ;
+    mySubsE50 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD26 ;
+    mySubsE51 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD27 ;
+    mySubsE52 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD26 ;
+    mySubsE53 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD27 ;
+    mySubsE54 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD17*mySubsD25 + PRAS40_T*kPras40Phos*mySubsD11*mySubsD19*mySubsD27 + PRAS40_T*kPras40Phos*mySubsD16*mySubsD19*mySubsD26 ;
+    mySubsE55 = 1 ;
+    mySubsE56 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD22 ;
+    mySubsE57 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD23 ;
+    mySubsE58 = PRAS40_T*kPras40Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD24 ;
+    mySubsE59 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD13*mySubsD19*mySubsD28 ;
+    mySubsE60 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD14*mySubsD19*mySubsD28 ;
+    mySubsE61 = PRAS40_T*kPras40Phos*mySubsD12*mySubsD15*mySubsD19*mySubsD28 ;
+    mySubsE62 = PRAS40_T*kPras40Phos*mySubsD16*mySubsD19*mySubsD27 ;
+    mySubsF0 = 1 ;
+    mySubsF1 = kTSC2Dephos*mySubsD11*mySubsD20 + kTSC2Phos*kTSC2PhosBoost*mySubsD11*mySubsD19*mySubsD26 + kTSC2Phos*mySubsD10*mySubsD17*mySubsD20 ;
+    mySubsF2 = 1 ;
+    mySubsF3 = kTSC2Dephos*mySubsD11*mySubsD21*mySubsD22 + kTSC2Dephos*mySubsD12*mySubsD13*mySubsD20 + kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD13*mySubsD19*mySubsD26 + kTSC2Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD22 + kTSC2Phos*mySubsD10*mySubsD18*mySubsD20 ;
+    mySubsF4 = kTSC2Dephos*mySubsD11*mySubsD21*mySubsD23 ;
+    mySubsF5 = kTSC2Dephos*mySubsD11*mySubsD21*mySubsD24 ;
+    mySubsF6 = kTSC2Dephos*mySubsD12*mySubsD13*mySubsD25 ;
+    mySubsF7 = kTSC2Dephos*mySubsD12*mySubsD14*mySubsD20 ;
+    mySubsF8 = kTSC2Dephos*mySubsD12*mySubsD14*mySubsD25 ;
+    mySubsF9 = kTSC2Dephos*mySubsD12*mySubsD15*mySubsD20 ;
+    mySubsF10 = kTSC2Dephos*mySubsD12*mySubsD15*mySubsD25 ;
+    mySubsF11 = kTSC2Dephos*mySubsD16*mySubsD21*mySubsD22 ;
+    mySubsF12 = kTSC2Dephos*mySubsD16*mySubsD21*mySubsD23 ;
+    mySubsF13 = kTSC2Dephos*mySubsD16*mySubsD21*mySubsD24 ;
+    mySubsF14 = kTSC2Phos*mySubsD10*mySubsD18*mySubsD25 ;
+    mySubsF15 = kTSC2Phos*kTSC2PhosBoost*mySubsD11*mySubsD19*mySubsD28 ;
+    mySubsF16 = kTSC2Phos*kTSC2PhosBoost*mySubsD16*mySubsD19*mySubsD28 ;
+    mySubsF17 = kTSC2Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD23 ;
+    mySubsF18 = kTSC2Phos*mySubsD10*mySubsD17*mySubsD21*mySubsD24 ;
+    mySubsF19 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD13*mySubsD19*mySubsD27 ;
+    mySubsF20 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD14*mySubsD19*mySubsD26 ;
+    mySubsF21 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD14*mySubsD19*mySubsD27 ;
+    mySubsF22 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD15*mySubsD19*mySubsD26 ;
+    mySubsF23 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD15*mySubsD19*mySubsD27 ;
+    mySubsF24 = kTSC2Dephos*mySubsD11*mySubsD25 + kTSC2Dephos*mySubsD16*mySubsD20 + kTSC2Phos*kTSC2PhosBoost*mySubsD11*mySubsD19*mySubsD27 + kTSC2Phos*kTSC2PhosBoost*mySubsD16*mySubsD19*mySubsD26 + kTSC2Phos*mySubsD10*mySubsD17*mySubsD25 ;
+    mySubsF25 = 1 ;
+    mySubsF26 = kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD22 + kTSC2Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD22 ;
+    mySubsF27 = kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD23 ;
+    mySubsF28 = kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD24 ;
+    mySubsF29 = kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD22 ;
+    mySubsF30 = kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD23 ;
+    mySubsF31 = kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD24 ;
+    mySubsF32 = kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD22 ;
+    mySubsF33 = kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD23 ;
+    mySubsF34 = kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD24 ;
+    mySubsF35 = kTSC2Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD23 ;
+    mySubsF36 = kTSC2Phos*mySubsD10*mySubsD18*mySubsD21*mySubsD24 ;
+    mySubsF37 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD13*mySubsD19*mySubsD28 ;
+    mySubsF38 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD14*mySubsD19*mySubsD28 ;
+    mySubsF39 = kTSC2Phos*kTSC2PhosBoost*mySubsD12*mySubsD15*mySubsD19*mySubsD28 ;
+    mySubsF40 = kTSC2Dephos*mySubsD16*mySubsD25 + kTSC2Phos*kTSC2PhosBoost*mySubsD16*mySubsD19*mySubsD27 ;
+    mySubsF41 = TSC2_T*kTSC2Dephos*mySubsD11*mySubsD20 ;
+    mySubsF42 = 1 ;
+    mySubsF43 = TSC2_T*kTSC2Dephos*mySubsD11*mySubsD21*mySubsD22 + TSC2_T*kTSC2Dephos*mySubsD12*mySubsD13*mySubsD20 ;
+    mySubsF44 = TSC2_T*kTSC2Dephos*mySubsD11*mySubsD21*mySubsD23 ;
+    mySubsF45 = TSC2_T*kTSC2Dephos*mySubsD11*mySubsD21*mySubsD24 ;
+    mySubsF46 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD13*mySubsD25 ;
+    mySubsF47 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD14*mySubsD20 ;
+    mySubsF48 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD14*mySubsD25 ;
+    mySubsF49 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD15*mySubsD20 ;
+    mySubsF50 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD15*mySubsD25 ;
+    mySubsF51 = TSC2_T*kTSC2Dephos*mySubsD16*mySubsD21*mySubsD22 ;
+    mySubsF52 = TSC2_T*kTSC2Dephos*mySubsD16*mySubsD21*mySubsD23 ;
+    mySubsF53 = TSC2_T*kTSC2Dephos*mySubsD16*mySubsD21*mySubsD24 ;
+    mySubsF54 = TSC2_T*kTSC2Dephos*mySubsD11*mySubsD25 + TSC2_T*kTSC2Dephos*mySubsD16*mySubsD20 ;
+    mySubsF55 = 1 ;
+    mySubsF56 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD22 ;
+    mySubsF57 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD23 ;
+    mySubsF58 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD13*mySubsD21*mySubsD24 ;
+    mySubsF59 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD22 ;
+    mySubsF60 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD23 ;
+    mySubsF61 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD14*mySubsD21*mySubsD24 ;
+    mySubsF62 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD22 ;
+    mySubsF63 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD23 ;
+    mySubsF64 = TSC2_T*kTSC2Dephos*mySubsD12*mySubsD15*mySubsD21*mySubsD24 ;
+    mySubsF65 = TSC2_T*kTSC2Dephos*mySubsD16*mySubsD25 ;
+    mySubsG0 = FourEBP1_T*kFourEBP1Phos ;
+    mySubsG1 = kFourEBP1Dephos ;
+    mySubsG2 = kFourEBP1Phos ;
+    IRS1 = IRS1_T - IRS1a - IRS1pS636_639 ;
+    IRS1a = mySubsB0*(mySubsB3 + mySubsB4*pmTORC1)/(mySubsB1 + mySubsB2*pmTORC1) ;
+    IRS1pS636_639 = mySubsB5*pmTORC1/(mySubsB6 + mySubsB7*pmTORC1) ;
+    PI3K = PI3K_T - pPI3K ;
+    pPI3K = mySubsC0*(mySubsC3 + mySubsC4*pmTORC1)/(mySubsC1 + mySubsC2*pmTORC1) ;
+    AktpT308S473 = mySubsD19*(mySubsD26 + mySubsD27*pmTORC2 + mySubsD28*pmTORC1*pmTORC2)/(mySubsD20 + mySubsD21*pmTORC1*(mySubsD22 + mySubsD23*pmTORC2 + mySubsD24*pmTORC2) + mySubsD25*pmTORC2) ;
+    AktpS473 = mySubsD0*(mySubsD7 + mySubsD8*pmTORC2 + mySubsD9*pmTORC1*pmTORC2)/(mySubsD1 + mySubsD2*pmTORC1*(mySubsD3 + mySubsD4*pmTORC2 + mySubsD5*pmTORC2) + mySubsD6*pmTORC2) ;
+    AktpT308 = mySubsD10*(mySubsD17 + mySubsD18*pmTORC1)/(mySubsD11 + mySubsD12*pmTORC1*(mySubsD13 + mySubsD14*pmTORC2 + mySubsD15*pmTORC2) + mySubsD16*pmTORC2) ;
+    Akt = Akt_T - AktpS473 - AktpT308 - AktpT308S473 ;
+    TSC2pT1462 = -TSC2 + TSC2_T ;
+    TSC2 = mySubsF0*(mySubsF41 + mySubsF42*pmTORC1*(mySubsF43 + mySubsF44*pmTORC2 + mySubsF45*pmTORC2 + mySubsF46*pmTORC2 + mySubsF47*pmTORC2 + mySubsF48*pmTORC2^2 + mySubsF49*pmTORC2 + mySubsF50*pmTORC2^2 + mySubsF51*pmTORC2 + mySubsF52*pmTORC2^2 + mySubsF53*pmTORC2^2) + mySubsF54*pmTORC2 + mySubsF55*pmTORC1^2*(mySubsF56 + mySubsF57*pmTORC2 + mySubsF58*pmTORC2 + mySubsF59*pmTORC2 + mySubsF60*pmTORC2^2 + mySubsF61*pmTORC2^2 + mySubsF62*pmTORC2 + mySubsF63*pmTORC2^2 + mySubsF64*pmTORC2^2) + mySubsF65*pmTORC2^2)/(mySubsF1 + mySubsF2*pmTORC1*(mySubsF10*pmTORC2^2 + mySubsF11*pmTORC2 + mySubsF12*pmTORC2^2 + mySubsF13*pmTORC2^2 + mySubsF14*pmTORC2 + mySubsF15*pmTORC2 + mySubsF16*pmTORC2^2 + mySubsF17*pmTORC2 + mySubsF18*pmTORC2 + mySubsF19*pmTORC2 + mySubsF20*pmTORC2 + mySubsF21*pmTORC2^2 + mySubsF22*pmTORC2 + mySubsF23*pmTORC2^2 + mySubsF3 + mySubsF4*pmTORC2 + mySubsF5*pmTORC2 + mySubsF6*pmTORC2 + mySubsF7*pmTORC2 + mySubsF8*pmTORC2^2 + mySubsF9*pmTORC2) + mySubsF24*pmTORC2 + mySubsF25*pmTORC1^2*(mySubsF26 + mySubsF27*pmTORC2 + mySubsF28*pmTORC2 + mySubsF29*pmTORC2 + mySubsF30*pmTORC2^2 + mySubsF31*pmTORC2^2 + mySubsF32*pmTORC2 + mySubsF33*pmTORC2^2 + mySubsF34*pmTORC2^2 + mySubsF35*pmTORC2 + mySubsF36*pmTORC2 + mySubsF37*pmTORC2 + mySubsF38*pmTORC2^2 + mySubsF39*pmTORC2^2) + mySubsF40*pmTORC2^2) ;
+    pmTORC1 = RPTOR_T*mTOR_T/(3*(RICTOR_T + RPTOR_T + mTOR_T)) ;
+    mTORC1cyt = RPTOR_T*mTOR_T/(3*(RICTOR_T + RPTOR_T + mTOR_T)) ;
+    mTORC1lys = RPTOR_T*mTOR_T/(3*(RICTOR_T + RPTOR_T + mTOR_T)) ;
+    PRAS40 = PRAS40_T - PRAS40pT246 ;
+    PRAS40pT246 = mySubsE0*(mySubsE41 + mySubsE42*pmTORC1*(mySubsE43 + mySubsE44*pmTORC2 + mySubsE45*pmTORC2 + mySubsE46*pmTORC2^2 + mySubsE47*pmTORC2 + mySubsE48*pmTORC2 + mySubsE49*pmTORC2 + mySubsE50*pmTORC2 + mySubsE51*pmTORC2^2 + mySubsE52*pmTORC2 + mySubsE53*pmTORC2^2) + mySubsE54*pmTORC2 + mySubsE55*pmTORC1^2*(mySubsE56 + mySubsE57*pmTORC2 + mySubsE58*pmTORC2 + mySubsE59*pmTORC2 + mySubsE60*pmTORC2^2 + mySubsE61*pmTORC2^2) + mySubsE62*pmTORC2^2)/(mySubsE1 + mySubsE2*pmTORC1*(mySubsE10*pmTORC2^2 + mySubsE11*pmTORC2 + mySubsE12*pmTORC2^2 + mySubsE13*pmTORC2^2 + mySubsE14*pmTORC2 + mySubsE15*pmTORC2 + mySubsE16*pmTORC2^2 + mySubsE17*pmTORC2 + mySubsE18*pmTORC2 + mySubsE19*pmTORC2 + mySubsE20*pmTORC2 + mySubsE21*pmTORC2^2 + mySubsE22*pmTORC2 + mySubsE23*pmTORC2^2 + mySubsE3 + mySubsE4*pmTORC2 + mySubsE5*pmTORC2 + mySubsE6*pmTORC2 + mySubsE7*pmTORC2 + mySubsE8*pmTORC2^2 + mySubsE9*pmTORC2) + mySubsE24*pmTORC2 + mySubsE25*pmTORC1^2*(mySubsE26 + mySubsE27*pmTORC2 + mySubsE28*pmTORC2 + mySubsE29*pmTORC2 + mySubsE30*pmTORC2^2 + mySubsE31*pmTORC2^2 + mySubsE32*pmTORC2 + mySubsE33*pmTORC2^2 + mySubsE34*pmTORC2^2 + mySubsE35*pmTORC2 + mySubsE36*pmTORC2 + mySubsE37*pmTORC2 + mySubsE38*pmTORC2^2 + mySubsE39*pmTORC2^2) + mySubsE40*pmTORC2^2) ;
+    FourEBP1pT37_46 = mySubsG0*pmTORC1/(mySubsG1 + mySubsG2*pmTORC1) ;
+    FourEBP1 = FourEBP1_T - FourEBP1pT37_46 ;
+    S6KpT389 = mySubsA0*pmTORC1/(mySubsA1 + mySubsA2*pmTORC1) ;
+    S6K = S6K_T - S6KpT389 ;
+    pmTORC2 = RICTOR_T*mTOR_T/(2*(RICTOR_T + RPTOR_T + mTOR_T)) ;
+    mTORC2 = RICTOR_T*mTOR_T/(2*(RICTOR_T + RPTOR_T + mTOR_T)) ;
+    RPTOR = RPTOR_T*(RICTOR_T + RPTOR_T)/(RICTOR_T + RPTOR_T + mTOR_T) ;
+    RICTOR = RICTOR_T*(RICTOR_T + RPTOR_T)/(RICTOR_T + RPTOR_T + mTOR_T) ;
+    mTOR = mTOR_T^2/(RICTOR_T + RPTOR_T + mTOR_T) ;
+
+    RTX: ->PT ; PTSpeed
+    PT = 0
+    PTSpeed = 0
+    at (PTSpeed<0.5 && abs(IRS1a*PI3K*kPI3KPhos - kPI3KDephos*pPI3K)<0.0001*PI3K_T && abs(-RICTOR*kmTOR_RIC_Comb*mTOR - RPTOR*kmTOR_RPT_Comb*mTOR + kmTORC1_Dis*mTORC1cyt + kmTORC1_Dis*mTORC1lys + kmTORC1_Dis*pmTORC1 + kmTORC2_Dis*mTORC2 + kmTORC2_Dis*pmTORC2)<0.0001*mTOR_T && abs(FourEBP1*kFourEBP1Phos*pmTORC1 - FourEBP1pT37_46*kFourEBP1Dephos)<0.0001*FourEBP1_T && abs(S6K*kS6KPhos*pmTORC1 - S6KpT389*kS6KDephos)<0.0001*S6K_T && abs(Akt*kAktByTor2Phos*pmTORC2 - AktpS473*kAktByTor2Dephos - AktpS473*kAktPhos_kcat*pPI3K + AktpT308S473*kAktDephos)<0.0001*Akt_T && abs(InsulinB*kRAS*mTORC2 - S6KpT389*kmTORC2DephosByS6K*pmTORC2 - kmTORC2Dephos*pmTORC2 - kmTORC2_Dis*pmTORC2)<0.0001*mTOR_T*RICTOR_T && abs(-InsulinB*kRAS*mTORC2 + RICTOR*kmTOR_RIC_Comb*mTOR + S6KpT389*kmTORC2DephosByS6K*pmTORC2 + kmTORC2Dephos*pmTORC2 - kmTORC2_Dis*mTORC2)<0.0001*mTOR_T*RICTOR_T && abs(Akt*kAktPhos_kcat*pPI3K - AktpT308*kAktByTor2Phos*pmTORC2 - AktpT308*kAktDephos + AktpT308S473*kAktByTor2Dephos)<0.0001*Akt_T && abs(IRS1a*S6KpT389*kIRS1Phos - IRS1pS636_639*kIRS1Inact)<0.0001*IRS1_T && abs(-RICTOR*kmTOR_RIC_Comb*mTOR + kmTORC2_Dis*mTORC2 + kmTORC2_Dis*pmTORC2)<0.0001*RICTOR_T && abs(PRAS40*kPras40Phos*(AktpT308 + AktpT308S473) - PRAS40pT246*kPras40Dephos)<0.0001 && abs(AktpS473*kAktPhos_kcat*pPI3K + AktpT308*kAktByTor2Phos*pmTORC2 - AktpT308S473*kAktByTor2Dephos - AktpT308S473*kAktDephos)<0.0001*Akt_T && abs(-AAB*kmTORC1cytToLys*mTORC1cyt + RPTOR*kmTOR_RPT_Comb*mTOR + kmTORC1LysToCyt*mTORC1lys - kmTORC1_Dis*mTORC1cyt)<0.0001*mTOR_T*RPTOR_T && abs(IRS1*InsulinB*kIRS1Act - IRS1a*S6KpT389*kIRS1Phos)<0.0001*IRS1_T && abs(-AktpT308*TSC2*kTSC2Phos - AktpT308S473*TSC2*kTSC2Phos*kTSC2PhosBoost + TSC2pT1462*kTSC2Dephos)<0.0001*TSC2_T && abs(AAB*kmTORC1cytToLys*mTORC1cyt + TSC2*kmTORC1Dephos*pmTORC1 - kmTORC1LysToCyt*mTORC1lys - kmTORC1Phos*mTORC1lys - kmTORC1_Dis*mTORC1lys)<0.0001*mTOR_T*RPTOR_T && abs(-RPTOR*kmTOR_RPT_Comb*mTOR + kmTORC1_Dis*mTORC1cyt + kmTORC1_Dis*mTORC1lys + kmTORC1_Dis*pmTORC1)<0.0001*RPTOR_T && abs(-TSC2*kmTORC1Dephos*pmTORC1 + kmTORC1Phos*mTORC1lys - kmTORC1_Dis*pmTORC1)<0.0001*mTOR_T*RPTOR_T), t0=false: PTSpeed=1, AA=1, Insulin=1
+end
